@@ -44,15 +44,10 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 			Methods(e.method)
 	}
 
-	router.HandleFunc("/delay", handleGetDelay).
-		Name("/delay").
-		Methods("GET")
-	router.HandleFunc("/delay", handleSetDelay).
-		Name("/delay").
-		Methods("PUT")
+	router.HandleFunc("/delay", handleDelay).
+		Methods("GET", "PUT")
 
 	router.Handle("/metrics", httpMetrics.ServeMetrics()).
-		Name("/metrics").
 		Methods("GET")
 
 	// handlers.Use(httpLogs)
