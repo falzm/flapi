@@ -33,7 +33,29 @@ func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(rw, "%s\n", e.response)
 }
 
-func handleSet(rw http.ResponseWriter, r *http.Request) {
+func handleGetDelay(rw http.ResponseWriter, r *http.Request) {
+	method := r.URL.Query().Get("method")
+	if method == "" {
+		http.Error(rw, "Missing value for method parameter", http.StatusBadRequest)
+		return
+	}
+
+	route := r.URL.Query().Get("route")
+	if route == "" {
+		http.Error(rw, "Missing value for route parameter", http.StatusBadRequest)
+		return
+	}
+
+	e, ok := endpoints[method+route]
+	if !ok {
+		http.Error(rw, "No such endpoint", http.StatusNotFound)
+		return
+	}
+
+	fmt.Fprintf(rw, "%s\n", e.delay)
+}
+
+func handleSetDelay(rw http.ResponseWriter, r *http.Request) {
 	method := r.URL.Query().Get("method")
 	if method == "" {
 		http.Error(rw, "Missing value for method parameter", http.StatusBadRequest)
