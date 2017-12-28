@@ -71,7 +71,7 @@ func handleDelay(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		e.setDelay(time.Duration(delayValue) * time.Millisecond)
-		log.Info("delay for endpoint %s:%s adjusted to %s\n", e.method, e.route, e.delay)
+		log.Info("delay for endpoint %s:%s adjusted to %s", e.method, e.route, e.delay)
 
 		rw.WriteHeader(http.StatusNoContent)
 		return

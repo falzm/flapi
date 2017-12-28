@@ -35,5 +35,5 @@ func (mw *logsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, nex
 
 	res := rw.(negroni.ResponseWriter)
 
-	mw.log.Info("status:%d latency:%s method:%s path:%s", res.Status(), time.Since(start), r.Method, r.URL.Path)
+	mw.log.Debug("status:%d latency:%s method:%s path:%s", res.Status(), time.Since(start), r.Method, r.URL.Path)
 }

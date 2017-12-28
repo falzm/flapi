@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,6 +14,7 @@ import (
 const (
 	apiPrefix       = "/api"
 	defaultBindAddr = ":8000"
+	defaultLogLevel = "info"
 )
 
 var (
@@ -23,16 +25,24 @@ var (
 		"PUT" + "/c":  newEndpoint("PUT", "/c", "C", http.StatusAccepted),
 		"GET" + "/c":  newEndpoint("GET", "/c", "C", http.StatusOK),
 	}
-	log *logger.Logger
 
 	flagBindAddr string
+	flagLogLevel string
+
+	log *logger.Logger
 )
 
 func init() {
-	log, _ = logger.NewLogger(logger.FileConfig{Level: "debug"})
+	var err error
 
 	flag.StringVar(&flagBindAddr, "bind-addr", defaultBindAddr, "network [address]:port to bind to")
+	flag.StringVar(&flagLogLevel, "log-level", defaultLogLevel, "logging level")
 	flag.Parse()
+
+	if log, err = logger.NewLogger(logger.FileConfig{Level: flagLogLevel}); err != nil {
+		fmt.Fprintf(os.Stderr, "error: unable to initialize logger: %s\n", err)
+		os.Exit(1)
+	}
 }
 
 func main() {

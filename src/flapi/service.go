@@ -26,7 +26,7 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 	mwIgnore.Path("/metrics")
 	mwIgnore.Path("/delay")
 
-	// httpLogs := newlogsMiddleware(log.Context("http"), mwIgnore)
+	httpLogs := newlogsMiddleware(log.Context("http"), mwIgnore)
 	httpMetrics := newMetricsMiddleware("flapi",
 		map[float64]float64{
 			0.5:  0.05,
@@ -50,7 +50,7 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 	router.Handle("/metrics", httpMetrics.ServeMetrics()).
 		Methods("GET")
 
-	// handlers.Use(httpLogs)
+	handlers.Use(httpLogs)
 	handlers.Use(httpMetrics)
 
 	handlers.UseHandler(router)
