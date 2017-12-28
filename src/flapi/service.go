@@ -28,13 +28,10 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 
 	// httpLogs := newlogsMiddleware(log.Context("http"), mwIgnore)
 	httpMetrics := newMetricsMiddleware("flapi",
-		[]float64{
-			0.01, // 10 millisecond
-			0.05, // 50 millisecond
-			0.1,  // 100 millisecond
-			0.5,  // 500 millisecond
-			1,    // 1 second
-			5,    // 5 seconds
+		map[float64]float64{
+			0.5:  0.05,
+			0.95: 0.005,
+			0.99: 0.001,
 		},
 		mwIgnore,
 	)
@@ -44,7 +41,6 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 
 	for _, e := range endpoints {
 		router.HandleFunc(apiPrefix+e.route, e.handler).
-			Name(apiPrefix + e.route).
 			Methods(e.method)
 	}
 

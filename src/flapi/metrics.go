@@ -13,23 +13,30 @@ import (
 
 type metricsMiddleware struct {
 	ignore     *mux.Router
-	reqLatency *prometheus.HistogramVec
+	reqLatency *prometheus.SummaryVec
 }
 
-func newMetricsMiddleware(service string, reqLatencyBuckets []float64, ignore *mux.Router) *metricsMiddleware {
+func newMetricsMiddleware(service string, reqLatencyObjectives map[float64]float64, ignore *mux.Router) *metricsMiddleware {
 	mw := metricsMiddleware{
 		ignore: ignore,
 	}
 
-	if reqLatencyBuckets == nil {
-		reqLatencyBuckets = prometheus.DefBuckets
+	if reqLatencyObjectives == nil {
+		reqLatencyObjectives =
+			map[float64]float64{
+				0.5:  0.05,
+				0.9:  0.01,
+				0.99: 0.001,
+			}
 	}
 
-	mw.reqLatency = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+	mw.reqLatency = prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Name:        "http_request_latency_seconds",
 		Help:        "HTTP requests processing latency in seconds.",
 		ConstLabels: prometheus.Labels{"service": service},
-		Buckets:     reqLatencyBuckets,
+		Objectives:  reqLatencyObjectives,
+		MaxAge:      1 * time.Minute,
+		AgeBuckets:  1,
 	},
 		[]string{"code", "method", "path"},
 	)
