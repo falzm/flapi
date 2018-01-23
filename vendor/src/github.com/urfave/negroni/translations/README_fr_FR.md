@@ -6,10 +6,10 @@
 
 **Note:** Ce projet était initiallement connu comme
 `github.com/codegangsta/negroni` -- Github redirigera automatiquement les requêtes vers ce dépôt.
-Nous vous recommendons néanmoins d'utiliser la référence vers ce nouveau dépôt pour plus de clarté.
+Nous vous recommandons néanmoins d'utiliser la référence vers ce nouveau dépôt pour plus de clarté.
 
 Negroni approche la question de la création de *middleware* de manière pragmatique.
-La librarie se veut légère, non intrusive et encourage l'utilisation des *Handlers* de 
+La librairie se veut légère, non intrusive et encourage l'utilisation des *Handlers* de
 la librairie standard `net/http`.
 
 Si vous appréciez le projet [Martini](https://github.com/go-martini/martini) et estimez
@@ -17,7 +17,7 @@ qu'une certaine magie s'en dégage, Negroni sera sans doute plus approprié.
 
 ## Démarrer avec Negroni
 
-Une fois Go installé et votre variable [GOPATH](http://golang.org/doc/code.html#GOPATH) à jour, 
+Une fois Go installé et votre variable [GOPATH](http://golang.org/doc/code.html#GOPATH) à jour,
 créez votre premier fichier `.go` et nommez le `server.go`.
 
 <!-- { "interrupt": true } -->
@@ -44,7 +44,7 @@ func main() {
 }
 ```
 
-Installez au prélable le paquet Negroni (**NOTE**: Une version de Go &gt;= **go 1.1** est nécessaire):
+Installez au préalable le paquet Negroni (**NOTE**: Une version de Go &gt;= **go 1.1** est nécessaire):
 
 ```
 go get github.com/urfave/negroni
@@ -62,18 +62,18 @@ Vous avez dès à présent un serveur web Go basé sur `net/http` disponible à 
 
 Si vous utilisez Debian, `negroni` est aussi disponible en tant que [paquet]
 (https://packages.debian.org/sid/golang-github-urfave-negroni-dev).
-La commande `apt install golang-github-urfave-negroni-dev` vous permettra de l'installer 
+La commande `apt install golang-github-urfave-negroni-dev` vous permettra de l'installer
 (À ce jour, vous les trouverez dans les dépôts `sid`).
 
 ## Negroni est-il un *framework* ?
 
-Negroni **n'est pas** un *framework*. Considérez le comme une librairie centrée sur 
+Negroni **n'est pas** un *framework*. Considérez le comme une librairie centrée sur
 l'utilisation de *middleware* développés pour fonctionner directement avec la librairie `net/http`.
 
 ## Redirection (*Routing*) ?
 
-Negroni est *BYOR* (*Bring your own Router*, Amenez votre propre routeur).
-La communauté Go offre un nombre importants de routeur et Negroni met tout en oeuvre 
+Negroni est *BYOR* (*Bring your own Router*, Apporter votre propre routeur).
+La communauté Go offre un nombre importants de routeur et Negroni met tout en oeuvre
 pour fonctionner avec chacun d'entre eux en assurant un support complet de la librairie `net/http`.
 Par exemple, une utilisation avec [Gorilla Mux] se présente sous la forme:
 
@@ -92,7 +92,7 @@ http.ListenAndServe(":3001", n)
 
 ## `negroni.Classic()`
 
-L'instance `negroni.Classic()` propose par défaut trois middlwares qui seront utiles à la plupart
+L'instance `negroni.Classic()` propose par défaut trois middlewares qui seront utiles à la plupart
 des applications:
 
 * [`negroni.Recovery`](#recovery) - Récupère des appels à `panic`.
@@ -162,7 +162,7 @@ specific := common.With(
 
 ## `Run()`
 
-Negroni peut-être démarrer en utilisant la méthode `Run()`. Cette dernière 
+Negroni peut-être démarrer en utilisant la méthode `Run()`. Cette dernière
 prend en paramètre l'adresse du serveur, à l'instar de la méthode [`http.ListenAndServe`](https://godoc.org/net/http#ListenAndServe).
 
 <!-- { "interrupt": true } -->
@@ -180,10 +180,10 @@ func main() {
 ```
 Si aucune adresse n'est renseignée, la variable d'environnement `PORT` est utilisée.
 Si cette dernière n'est pas définie, l'adresse par défaut est utilisée.
-Pour une description détaillée, veuillez vous référer à la documentation de la méthode 
+Pour une description détaillée, veuillez-vous référer à la documentation de la méthode
 [Run]((https://godoc.org/github.com/urfave/negroni#Negroni.Run).
 
-De manière générale, vous voudrez vous servir de la librairie `net/http` et utiliser `negroni` 
+De manière générale, vous voudrez vous servir de la librairie `net/http` et utiliser `negroni`
 comme un simple `Handler` pour plus de flexibilité.
 
 Par exemple:
@@ -224,15 +224,15 @@ func main() {
 ## Redirection spécifique
 
 Si un ensemble de routes nécessite l'appel à des *middleware* spécifiques,
-vous pouvez simplement créer une nouvelle instance Negroni et l'utiliser comme 
-`Handler` pour votre ensemble.
+vous pouvez simplement créer une nouvelle instance Negroni et l'utiliser comme
+`Handler` pour cet ensemble.
 
 ``` go
 router := mux.NewRouter()
 adminRoutes := mux.NewRouter()
 // ajout des routes relatives à l'administration
 
-// Creation d'une nouvelle instance pour le "middleware" admin.
+// Création d'une nouvelle instance pour le "middleware" admin.
 router.PathPrefix("/admin").Handler(negroni.New(
   Middleware1,
   Middleware2,
@@ -248,7 +248,7 @@ subRouter := mux.NewRouter().PathPrefix("/subpath").Subrouter().StrictSlash(true
 subRouter.HandleFunc("/", someSubpathHandler) // "/subpath/"
 subRouter.HandleFunc("/:id", someSubpathHandler) // "/subpath/:id"
 
-// "/subpath" est nécessaire pour assuer la cohésion entre le `subrouter` et le routeur principal
+// "/subpath" est nécessaire pour assurer la cohésion entre le `subrouter` et le routeur principal
 router.PathPrefix("/subpath").Handler(negroni.New(
   Middleware1,
   Middleware2,
@@ -256,7 +256,7 @@ router.PathPrefix("/subpath").Handler(negroni.New(
 ))
 ```
 
-La méthode `With()` peut aider à réduire la duplication des *middlewares* partagés par 
+La méthode `With()` peut aider à réduire la duplication des *middlewares* partagés par
 plusieurs routes.
 
 ``` go
@@ -290,10 +290,10 @@ router.PathPrefix("/web").Handler(common.With(
 
 ### Static
 
-Ce *middleware* va servir les fichiers présents sur le système de fichier.
+Ce *middleware* va servir les fichiers présents sur le système de fichiers.
 Si un fichier n'existe pas, il transmet la requête au *middleware* suivant.
 Si vous souhaitez retourner le message `404 File Not Found` pour les fichiers non existants,
-vous pouvez utiliser la fonction [http.FileServer](https://golang.org/pkg/net/http/#FileServer) 
+vous pouvez utiliser la fonction [http.FileServer](https://golang.org/pkg/net/http/#FileServer)
 comme `Handler`.
 
 Exemple:
@@ -327,16 +327,16 @@ func main() {
 }
 ```
 
-Ce programme servira les fichiers depuis le dossier `/tmp` en premier lieu. 
+Ce programme servira les fichiers depuis le dossier `/tmp` en premier lieu.
 Si le fichier n'est pas trouvé, il transmet la requête au *middleware* suivant.
 
 ### Recupération (*Recovery*)
 
-Ce *middleware* attrape les appels à `panic` et renvoie une response `500` à 
-la requête correspondante. Si un autre *middleware* a déjà renvoyé une réponse (vide ou non), 
-le renvoie de la réponse `500` au client échouera, le client en ayant déja obtenu une.
+Ce *middleware* capture les appels à `panic` et renvoie une réponse `500` à
+la requête correspondante. Si un autre *middleware* a déjà renvoyé une réponse (vide ou non),
+le renvoie de la réponse `500` au client échouera, le client en ayant déjà obtenu une.
 
-Il est possible d'ajoindre au *middleware* une fonction de type `PanicHandlerFunc` 
+Il est possible d'adjoindre au *middleware* une fonction de type `PanicHandlerFunc`
 pour collecter les erreurs `500` et les transmettre à un service de rapport d'erreur
 tels Sentry ou Airbrake.
 
@@ -468,7 +468,7 @@ N'hésitez pas à créer une PR pour renseigner un middleware de votre cru:
 | [JWT Middleware](https://github.com/auth0/go-jwt-middleware) | [Auth0](https://github.com/auth0) | Middleware vérifiant la présence d'un JWT dans le *header* `Authorization` et le décode |
 | [logrus](https://github.com/meatballhat/negroni-logrus) | [Dan Buch](https://github.com/meatballhat) | *Logger* basé sur Logrus |
 | [oauth2](https://github.com/goincremental/negroni-oauth2) | [David Bochenski](https://github.com/bochenski) | Middleware oAuth2 |
-| [onthefly](https://github.com/xyproto/onthefly) | [Alexander Rødseth](https://github.com/xyproto) | Générer des élements TinySVG, HTML et CSS à la volée |
+| [onthefly](https://github.com/xyproto/onthefly) | [Alexander Rødseth](https://github.com/xyproto) | Générer des éléments TinySVG, HTML et CSS à la volée |
 | [permissions2](https://github.com/xyproto/permissions2) | [Alexander Rødseth](https://github.com/xyproto) | Cookies, utilisateurs et permissions |
 | [prometheus](https://github.com/zbindenren/negroni-prometheus) | [Rene Zbinden](https://github.com/zbindenren) | Créer des métriques facilement avec l'outil [prometheus](http://prometheus.io) |
 | [render](https://github.com/unrolled/render) | [Cory Jacobsen](https://github.com/unrolled) | Rendre des templates JSON, XML et HTML |
@@ -480,18 +480,20 @@ N'hésitez pas à créer une PR pour renseigner un middleware de votre cru:
 | [xrequestid](https://github.com/pilu/xrequestid) | [Andrea Franz](https://github.com/pilu) | Un *middleware* qui assigne un *header* `X-Request-Id` à chaque requête |
 | [mgo session](https://github.com/joeljames/nigroni-mgo-session) | [Joel James](https://github.com/joeljames) | Un *middleware* qui gère les sessions mgo pour chaque requête (ouverture, fermeture) |
 | [digits](https://github.com/bamarni/digits) | [Bilal Amarni](https://github.com/bamarni) | Un *middleware* qui gère l'authentification via [Twitter Digits](https://get.digits.com/) |
+| [stats](https://github.com/guptachirag/stats) | [Chirag Gupta](https://github.com/guptachirag/stats) |
+Middleware qui gère les statistiques qps et latence pour vos points de terminaison et les envoie de manière asynchrone à influx db |
 
 ## Exemples
 
-[Alexander Rødseth](https://github.com/xyproto) a crée
+[Alexander Rødseth](https://github.com/xyproto) a créé
 [mooseware](https://github.com/xyproto/mooseware), un squelette pour écrire un *middleware* Negroni.
 
-[Prasanga Siripala](https://github.com/pjebs) a crée un squelette pour les applications web basées sur Go et Negroni: [Go-Skeleton](https://github.com/pjebs/go-skeleton)
+[Prasanga Siripala](https://github.com/pjebs) a créé un squelette pour les applications web basées sur Go et Negroni: [Go-Skeleton](https://github.com/pjebs/go-skeleton)
 
 ## Rechargement automatique du code ?
 
 [gin](https://github.com/codegangsta/gin) et
-[fresh](https://github.com/pilu/fresh) permettent tout deux de recharger les applications Negroni 
+[fresh](https://github.com/pilu/fresh) permettent tous deux de recharger les applications Negroni
 suite à une modification opérée dans le code.
 
 ## Lectures pour les débutants avec Go et Negroni

@@ -11,26 +11,26 @@
 		{
 			"importpath": "github.com/facette/logger",
 			"repository": "https://github.com/facette/logger",
-			"revision": "d1e6644a1dfe0d5ca0fb72927ca2c050b25cb7d3",
+			"revision": "60ca3a8b846b4034dc8e93e725ac5d02388ae780",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "1e59b77b52bf8e4b449a57e6f79f21226d571845",
+			"revision": "c65a0412e71e8b9b3bfd22925720d23c0f054237",
 			"branch": "master",
 			"path": "/proto"
 		},
 		{
 			"importpath": "github.com/gorilla/mux",
 			"repository": "https://github.com/gorilla/mux",
-			"revision": "5ab525f4fb1678e197ae59401e9050fa0b6cb5fd",
+			"revision": "c0091a029979286890368b4c7b301261e448e242",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/mattn/go-colorable",
 			"repository": "https://github.com/mattn/go-colorable",
-			"revision": "6fcc0c1fd9b620311d821b106a400b35dc95c497",
+			"revision": "6cc8b475d4682021d75d2cbe2bc481bec4ce98e5",
 			"branch": "master"
 		},
 		{
@@ -55,7 +55,7 @@
 		{
 			"importpath": "github.com/prometheus/client_golang/prometheus",
 			"repository": "https://github.com/prometheus/client_golang",
-			"revision": "661e31bf844dfca9aeba15f27ea8aa0d485ad212",
+			"revision": "06bc6e01f4baf4ee783ffcd23abfcb0b0f9dfada",
 			"branch": "master",
 			"path": "/prometheus"
 		},
@@ -69,47 +69,68 @@
 		{
 			"importpath": "github.com/prometheus/common/expfmt",
 			"repository": "https://github.com/prometheus/common",
-			"revision": "2e54d0b93cba2fd133edc32211dcc32c06ef72ca",
+			"revision": "89604d197083d4781071d3c65855d24ecfb0a563",
 			"branch": "master",
 			"path": "/expfmt"
 		},
 		{
 			"importpath": "github.com/prometheus/common/internal/bitbucket.org/ww/goautoneg",
 			"repository": "https://github.com/prometheus/common",
-			"revision": "2e54d0b93cba2fd133edc32211dcc32c06ef72ca",
+			"revision": "89604d197083d4781071d3c65855d24ecfb0a563",
 			"branch": "master",
 			"path": "/internal/bitbucket.org/ww/goautoneg"
 		},
 		{
 			"importpath": "github.com/prometheus/common/model",
 			"repository": "https://github.com/prometheus/common",
-			"revision": "2e54d0b93cba2fd133edc32211dcc32c06ef72ca",
+			"revision": "89604d197083d4781071d3c65855d24ecfb0a563",
 			"branch": "master",
 			"path": "/model"
 		},
 		{
 			"importpath": "github.com/prometheus/procfs",
 			"repository": "https://github.com/prometheus/procfs",
-			"revision": "f98634e408857669d61064b283c4cde240622865",
+			"revision": "b15cd069a83443be3154b719d0cc9fe8117f09fb",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/urfave/negroni",
 			"repository": "https://github.com/urfave/negroni",
-			"revision": "cc68f18cd7e1157c71811df1396496a9db0e997d",
+			"revision": "ff85fb036d90eda8518001242fcded1024e05c98",
 			"branch": "master"
 		},
 		{
-			"importpath": "golang.org/x/net/context",
-			"repository": "https://go.googlesource.com/net",
-			"revision": "d866cfc389cec985d6fda2859936a575a55a3ab6",
+			"importpath": "go.opencensus.io/exporter/stats/prometheus",
+			"repository": "https://github.com/census-instrumentation/opencensus-go",
+			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
 			"branch": "master",
-			"path": "/context"
+			"path": "/exporter/stats/prometheus"
+		},
+		{
+			"importpath": "go.opencensus.io/internal",
+			"repository": "https://github.com/census-instrumentation/opencensus-go",
+			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
+			"branch": "master",
+			"path": "/internal"
+		},
+		{
+			"importpath": "go.opencensus.io/stats",
+			"repository": "https://github.com/census-instrumentation/opencensus-go",
+			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
+			"branch": "master",
+			"path": "/stats"
+		},
+		{
+			"importpath": "go.opencensus.io/tag",
+			"repository": "https://github.com/census-instrumentation/opencensus-go",
+			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
+			"branch": "master",
+			"path": "/tag"
 		},
 		{
 			"importpath": "gopkg.in/yaml.v2",
 			"repository": "https://gopkg.in/yaml.v2",
-			"revision": "0e4404da71227dcc02fb1deee803d93e86d08f72",
+			"revision": "d670f9405373e636a5a2765eea47fac0c9bc91a4",
 			"branch": "v2"
 		}
 	]

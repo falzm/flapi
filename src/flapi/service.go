@@ -17,7 +17,7 @@ type service struct {
 	metrics   *metricsMiddleware
 }
 
-func newService(bindAddr string, endpoints map[string]*endpoint) *service {
+func newService(bindAddr string, endpoints map[string]*endpoint) (*service, error) {
 	var (
 		service  service
 		handlers *negroni.Negroni
@@ -31,7 +31,7 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 	mwIgnore.Path("/delay")
 
 	httpLogs := newlogsMiddleware(log.Context("http"), mwIgnore)
-	httpMetrics := newMetricsMiddleware("flapi",
+	httpMetrics, err := newMetricsMiddleware("flapi",
 		map[float64]float64{
 			0.5:  0.05,
 			0.95: 0.005,
@@ -39,6 +39,10 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 		},
 		mwIgnore,
 	)
+	if err != nil {
+		return nil, fmt.Errorf("metrics middleware init error: %s", err)
+	}
+
 	service.metrics = httpMetrics
 
 	router = mux.NewRouter()
@@ -65,7 +69,7 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 		Handler: handlers,
 	}
 
-	return &service
+	return &service, nil
 }
 
 func (s *service) handleDelay(rw http.ResponseWriter, r *http.Request) {

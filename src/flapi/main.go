@@ -44,7 +44,10 @@ func main() {
 		dieOnError("unable to load configuration: %s", err)
 	}
 
-	service := newService(flagBindAddr, config.endpoints())
+	service, err := newService(flagBindAddr, config.endpoints())
+	if err != nil {
+		dieOnError("unable to create service: %s", err)
+	}
 
 	// Handle service signals
 	sigChan := make(chan os.Signal, 1)
