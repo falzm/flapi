@@ -1,7 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/facette/logger"
 	"github.com/gorilla/mux"
@@ -9,8 +12,9 @@ import (
 )
 
 type service struct {
-	server  *http.Server
-	metrics *metricsMiddleware
+	server    *http.Server
+	endpoints map[string]*endpoint
+	metrics   *metricsMiddleware
 }
 
 func newService(bindAddr string, endpoints map[string]*endpoint) *service {
@@ -39,12 +43,13 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 
 	router = mux.NewRouter()
 
-	for _, e := range endpoints {
+	service.endpoints = endpoints
+	for _, e := range service.endpoints {
 		router.HandleFunc(apiPrefix+e.route, e.handler).
 			Methods(e.method)
 	}
 
-	router.HandleFunc("/delay", handleDelay).
+	router.HandleFunc("/delay", service.handleDelay).
 		Methods("GET", "PUT")
 
 	router.Handle("/metrics", httpMetrics.ServeMetrics()).
@@ -61,6 +66,65 @@ func newService(bindAddr string, endpoints map[string]*endpoint) *service {
 	}
 
 	return &service
+}
+
+func (s *service) handleDelay(rw http.ResponseWriter, r *http.Request) {
+	method := r.URL.Query().Get("method")
+	if method == "" {
+		http.Error(rw, "Missing value for method parameter", http.StatusBadRequest)
+		return
+	}
+
+	route := r.URL.Query().Get("route")
+	if route == "" {
+		http.Error(rw, "Missing value for route parameter", http.StatusBadRequest)
+		return
+	}
+
+	e, ok := s.endpoints[method+route]
+	if !ok {
+		http.Error(rw, "No such endpoint", http.StatusNotFound)
+		return
+	}
+
+	switch r.Method {
+	case "GET":
+		fmt.Fprintf(rw, "%s\n", e.delay)
+		return
+
+	case "PUT":
+		delay := r.URL.Query().Get("delay")
+		if delay == "" {
+			http.Error(rw, "Missing value for delay parameter", http.StatusBadRequest)
+			return
+		}
+
+		delayValue, err := strconv.ParseFloat(delay, 64)
+		if err != nil {
+			http.Error(rw, "Invalid value for delay parameter", http.StatusBadRequest)
+			return
+		}
+
+		probability := defaultProbability
+		if r.URL.Query().Get("probability") != "" {
+			probability, err = strconv.ParseFloat(r.URL.Query().Get("probability"), 64)
+			if err != nil {
+				http.Error(rw, "Invalid value for probability parameter", http.StatusBadRequest)
+				return
+			}
+		}
+
+		e.setDelay(time.Duration(delayValue)*time.Millisecond, probability)
+		log.Info("delay for endpoint %s:%s adjusted to %s with probability %.1f",
+			e.method,
+			e.route,
+			e.delay,
+			e.probability,
+		)
+
+		rw.WriteHeader(http.StatusNoContent)
+		return
+	}
 }
 
 func (s *service) run() error {

@@ -1,0 +1,21 @@
+---
+
+endpoints:
+- method: POST
+  route: /a
+  response_status: 201
+- method: GET
+  route: /a
+  response_status: 200
+  response_body: A
+- method: GET
+  route: /b
+  response_status: 200
+  response_body: B
+- method: PUT
+  route: /c
+  response_status: 202
+- method: GET
+  route: /c
+  response_status: 200
+  response_body: C

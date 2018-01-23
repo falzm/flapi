@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,22 +11,16 @@ import (
 )
 
 const (
-	apiPrefix       = "/api"
-	defaultBindAddr = ":8000"
-	defaultLogLevel = "info"
+	apiPrefix         = "/api"
+	defaultConfigPath = "flapi.yaml"
+	defaultBindAddr   = ":8000"
+	defaultLogLevel   = "info"
 )
 
 var (
-	endpoints = map[string]*endpoint{
-		"POST" + "/a": newEndpoint("POST", "/a", "OK", http.StatusCreated),
-		"GET" + "/a":  newEndpoint("GET", "/a", "A", http.StatusOK),
-		"GET" + "/b":  newEndpoint("GET", "/b", "B", http.StatusOK),
-		"PUT" + "/c":  newEndpoint("PUT", "/c", "C", http.StatusAccepted),
-		"GET" + "/c":  newEndpoint("GET", "/c", "C", http.StatusOK),
-	}
-
-	flagBindAddr string
-	flagLogLevel string
+	flagConfigPath string
+	flagBindAddr   string
+	flagLogLevel   string
 
 	log *logger.Logger
 )
@@ -35,18 +28,23 @@ var (
 func init() {
 	var err error
 
+	flag.StringVar(&flagConfigPath, "config", defaultConfigPath, "path to configuration file")
 	flag.StringVar(&flagBindAddr, "bind-addr", defaultBindAddr, "network [address]:port to bind to")
 	flag.StringVar(&flagLogLevel, "log-level", defaultLogLevel, "logging level")
 	flag.Parse()
 
 	if log, err = logger.NewLogger(logger.FileConfig{Level: flagLogLevel}); err != nil {
-		fmt.Fprintf(os.Stderr, "error: unable to initialize logger: %s\n", err)
-		os.Exit(1)
+		dieOnError("unable to initialize logger: %s", err)
 	}
 }
 
 func main() {
-	service := newService(flagBindAddr, endpoints)
+	config, err := loadConfig(flagConfigPath)
+	if err != nil {
+		dieOnError("unable to load configuration: %s", err)
+	}
+
+	service := newService(flagBindAddr, config.endpoints())
 
 	// Handle service signals
 	sigChan := make(chan os.Signal, 1)
@@ -68,4 +66,9 @@ func main() {
 	service.run()
 
 	log.Notice("terminating")
+}
+
+func dieOnError(format string, a ...interface{}) {
+	fmt.Fprintf(os.Stderr, fmt.Sprintf("error: %s\n", format), a...)
+	os.Exit(1)
 }
