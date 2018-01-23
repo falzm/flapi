@@ -89,7 +89,7 @@ func (s *service) handleDelay(rw http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		fmt.Fprintf(rw, "%s\n", e.delay)
+		fmt.Fprintf(rw, "%s (probability: %.1f)\n", e.delay, e.probability)
 		return
 
 	case "PUT":
