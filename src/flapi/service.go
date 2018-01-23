@@ -113,6 +113,10 @@ func (s *service) handleDelay(rw http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+		if probability < 0 || probability > 1 {
+			http.Error(rw, "Probability parameter value must be 0 < p < 1 ", http.StatusBadRequest)
+			return
+		}
 
 		e.setDelay(time.Duration(delayValue)*time.Millisecond, probability)
 		log.Info("delay for endpoint %s:%s adjusted to %s with probability %.1f",
