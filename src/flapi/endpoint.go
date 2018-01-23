@@ -16,7 +16,7 @@ type endpoint struct {
 	probability    float64
 }
 
-var defaultProbability = 0.0
+var defaultProbability = 1.0
 
 func newEndpoint(method, route string, responseStatus int, responseBody string) (*endpoint, error) {
 	if method == "" {
@@ -43,7 +43,7 @@ func newEndpoint(method, route string, responseStatus int, responseBody string) 
 func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
 	time.Sleep(time.Duration(1+rand.Intn(5)) * time.Millisecond)
 
-	if p := rand.Float64(); p > e.probability {
+	if p := rand.Float64(); p > 1-e.probability {
 		time.Sleep(e.delay)
 	}
 
