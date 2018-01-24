@@ -50,7 +50,7 @@ func newMetricsMiddleware(service string, reqLatencyObjectives map[float64]float
 		"HTTP requests processing latency in seconds",
 		[]tag.Key{mw.tags["method"], mw.tags["path"], mw.tags["status"]},
 		mw.reqLatency,
-		stats.DistributionAggregation([]float64{0.001, 0.01, 0.1, 1.0, 5.0, 10.0}),
+		stats.DistributionAggregation([]float64{0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0}),
 		stats.Cumulative{},
 	)
 	if err != nil {
