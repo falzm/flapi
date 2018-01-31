@@ -16,7 +16,7 @@
 // Stackdriver Monitoring.
 //
 // Please note that this exporter is currently work in progress and not complete.
-package prometheus
+package prometheus // import "go.opencensus.io/exporter/prometheus"
 
 import (
 	"bytes"
@@ -62,7 +62,7 @@ var (
 // NewExporter returns an exporter that exports stats to Prometheus.
 // Only one exporter should exist per instance
 func NewExporter(o Options) (*Exporter, error) {
-	var err error = errSingletonExporter
+	var err = errSingletonExporter
 	var exporter *Exporter
 	newExporterOnce.Do(func() {
 		exporter, err = newExporter(o)
@@ -138,8 +138,14 @@ func (o *Options) onError(err error) {
 	}
 }
 
-// Export exports to the Prometheus if view data has one or more rows.
-func (e *Exporter) Export(vd *stats.ViewData) {
+// ExportView exports to the Prometheus if view data has one or more rows.
+// Each OpenCensus AggregationData will be converted to
+// corresponding Prometheus Metric: SumData will be converted
+// to Untyped Metric, CountData will be Counter Metric,
+// DistributionData will be Histogram Metric, and MeanData
+// will be Summary Metric. Please note the Summary Metric from
+// MeanData does not have any quantiles.
+func (e *Exporter) ExportView(vd *stats.ViewData) {
 	if len(vd.Rows) == 0 {
 		return
 	}
@@ -235,7 +241,7 @@ func (c *collector) toMetric(desc *prometheus.Desc, view *stats.View, row *stats
 
 	case stats.MeanAggregation:
 		data := row.Data.(*stats.MeanData)
-		return prometheus.NewConstMetric(desc, prometheus.UntypedValue, data.Mean, tagValues(row.Tags)...)
+		return prometheus.NewConstSummary(desc, uint64(data.Count), data.Sum(), make(map[float64]float64), tagValues(row.Tags)...)
 
 	case stats.SumAggregation:
 		data := row.Data.(*stats.SumData)

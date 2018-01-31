@@ -622,7 +622,7 @@ func TestReportUsage(t *testing.T) {
 
 	cum1, _ := NewView("cum1", "", nil, m, CountAggregation{}, Cumulative{})
 	cum2, _ := NewView("cum1", "", nil, m, CountAggregation{}, &Cumulative{})
-	interval, _ := NewView("cum1", "", nil, m, CountAggregation{}, Interval{Duration: 5 * time.Millisecond, Intervals: 1})
+	interval, _ := NewView("cum1", "", nil, m, CountAggregation{}, Interval{Duration: 5 * time.Millisecond, SubIntervals: 1})
 
 	tests := []struct {
 		name         string
@@ -757,7 +757,7 @@ type countExporter struct {
 	count int64
 }
 
-func (e *countExporter) Export(vd *ViewData) {
+func (e *countExporter) ExportView(vd *ViewData) {
 	if len(vd.Rows) == 0 {
 		return
 	}
@@ -773,7 +773,7 @@ type vdExporter struct {
 	vds []*ViewData
 }
 
-func (e *vdExporter) Export(vd *ViewData) {
+func (e *vdExporter) ExportView(vd *ViewData) {
 	e.Lock()
 	defer e.Unlock()
 

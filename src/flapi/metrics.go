@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
-	"go.opencensus.io/exporter/stats/prometheus"
+	"go.opencensus.io/exporter/prometheus"
 	"go.opencensus.io/stats"
 	"go.opencensus.io/tag"
 )

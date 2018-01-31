@@ -17,7 +17,7 @@
 		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
-			"revision": "c65a0412e71e8b9b3bfd22925720d23c0f054237",
+			"revision": "925541529c1fa6821df4e44ce2723319eb2be768",
 			"branch": "master",
 			"path": "/proto"
 		},
@@ -55,7 +55,7 @@
 		{
 			"importpath": "github.com/prometheus/client_golang/prometheus",
 			"repository": "https://github.com/prometheus/client_golang",
-			"revision": "06bc6e01f4baf4ee783ffcd23abfcb0b0f9dfada",
+			"revision": "f4fb1b73fb099f396a7f0036bf86aa8def4ed823",
 			"branch": "master",
 			"path": "/prometheus"
 		},
@@ -90,40 +90,40 @@
 		{
 			"importpath": "github.com/prometheus/procfs",
 			"repository": "https://github.com/prometheus/procfs",
-			"revision": "b15cd069a83443be3154b719d0cc9fe8117f09fb",
+			"revision": "cb4147076ac75738c9a7d279075a253c0cc5acbd",
 			"branch": "master"
 		},
 		{
 			"importpath": "github.com/urfave/negroni",
 			"repository": "https://github.com/urfave/negroni",
-			"revision": "ff85fb036d90eda8518001242fcded1024e05c98",
+			"revision": "22c5532ea862c34fdad414e90f8cc00b4f6f4cab",
 			"branch": "master"
 		},
 		{
-			"importpath": "go.opencensus.io/exporter/stats/prometheus",
+			"importpath": "go.opencensus.io/exporter/prometheus",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
+			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
 			"branch": "master",
-			"path": "/exporter/stats/prometheus"
+			"path": "/exporter/prometheus"
 		},
 		{
 			"importpath": "go.opencensus.io/internal",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
+			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
 			"branch": "master",
 			"path": "/internal"
 		},
 		{
 			"importpath": "go.opencensus.io/stats",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
+			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
 			"branch": "master",
 			"path": "/stats"
 		},
 		{
 			"importpath": "go.opencensus.io/tag",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "7a9460ceb1a16caeaedb3d40fcc77176ea9713b2",
+			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
 			"branch": "master",
 			"path": "/tag"
 		},
