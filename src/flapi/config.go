@@ -8,6 +8,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var (
+	defaultMetricsLatencyHistogramBuckets = []float64{0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 30.0}
+)
+
+type configMetrics struct {
+	LatencyHistogramBuckets []float64 `yaml:"latency_histogram_buckets"`
+}
+
 type configEndpoint struct {
 	Method         string `yaml:"method"`
 	Route          string `yaml:"route"`
@@ -16,11 +24,16 @@ type configEndpoint struct {
 }
 
 type config struct {
+	Metrics   configMetrics     `yaml:metrics`
 	Endpoints []*configEndpoint `yaml:"endpoints"`
 }
 
 func loadConfig(path string) (*config, error) {
-	var c config
+	var c = config{
+		Metrics: configMetrics{
+			LatencyHistogramBuckets: defaultMetricsLatencyHistogramBuckets,
+		},
+	}
 
 	if _, err := os.Stat(path); err != nil {
 		return nil, err

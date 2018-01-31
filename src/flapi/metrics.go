@@ -20,8 +20,7 @@ type metricsMiddleware struct {
 	tags       map[string]tag.Key
 }
 
-func newMetricsMiddleware(service string, reqLatencyObjectives map[float64]float64,
-	ignore *mux.Router) (*metricsMiddleware, error) {
+func newMetricsMiddleware(service string, reqLatencyBuckets []float64, ignore *mux.Router) (*metricsMiddleware, error) {
 	var (
 		err error
 		mw  = metricsMiddleware{
@@ -50,7 +49,7 @@ func newMetricsMiddleware(service string, reqLatencyObjectives map[float64]float
 		"HTTP requests processing latency in seconds",
 		[]tag.Key{mw.tags["method"], mw.tags["path"], mw.tags["status"]},
 		mw.reqLatency,
-		stats.DistributionAggregation([]float64{0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0}),
+		stats.DistributionAggregation(reqLatencyBuckets),
 		stats.Cumulative{},
 	)
 	if err != nil {

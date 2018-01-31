@@ -17,7 +17,7 @@ type service struct {
 	metrics   *metricsMiddleware
 }
 
-func newService(bindAddr string, endpoints map[string]*endpoint) (*service, error) {
+func newService(bindAddr string, config *config) (*service, error) {
 	var (
 		service  service
 		handlers *negroni.Negroni
@@ -32,11 +32,7 @@ func newService(bindAddr string, endpoints map[string]*endpoint) (*service, erro
 
 	httpLogs := newlogsMiddleware(log.Context("http"), mwIgnore)
 	httpMetrics, err := newMetricsMiddleware("flapi",
-		map[float64]float64{
-			0.5:  0.05,
-			0.95: 0.005,
-			0.99: 0.001,
-		},
+		config.Metrics.LatencyHistogramBuckets,
 		mwIgnore,
 	)
 	if err != nil {
@@ -47,7 +43,7 @@ func newService(bindAddr string, endpoints map[string]*endpoint) (*service, erro
 
 	router = mux.NewRouter()
 
-	service.endpoints = endpoints
+	service.endpoints = config.endpoints()
 	for _, e := range service.endpoints {
 		router.HandleFunc(apiPrefix+e.route, e.handler).
 			Methods(e.method)

@@ -44,7 +44,7 @@ func main() {
 		dieOnError("unable to load configuration: %s", err)
 	}
 
-	service, err := newService(flagBindAddr, config.endpoints())
+	service, err := newService(flagBindAddr, config)
 	if err != nil {
 		dieOnError("unable to create service: %s", err)
 	}
