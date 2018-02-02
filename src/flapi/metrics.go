@@ -13,6 +13,12 @@ import (
 	"go.opencensus.io/tag"
 )
 
+type metricsMiddlewareConfig struct {
+	service           string
+	ignore            *mux.Router
+	reqLatencyBuckets []float64
+}
+
 type metricsMiddleware struct {
 	exporter   *prometheus.Exporter
 	ignore     *mux.Router
@@ -20,16 +26,16 @@ type metricsMiddleware struct {
 	tags       map[string]tag.Key
 }
 
-func newMetricsMiddleware(service string, reqLatencyBuckets []float64, ignore *mux.Router) (*metricsMiddleware, error) {
+func newMetricsMiddleware(config *metricsMiddlewareConfig) (*metricsMiddleware, error) {
 	var (
 		err error
 		mw  = metricsMiddleware{
-			ignore: ignore,
+			ignore: config.ignore,
 			tags:   map[string]tag.Key{},
 		}
 	)
 
-	if mw.exporter, err = prometheus.NewExporter(prometheus.Options{Namespace: "flapi"}); err != nil {
+	if mw.exporter, err = prometheus.NewExporter(prometheus.Options{Namespace: config.service}); err != nil {
 		return nil, fmt.Errorf("unable to init Prometheus exporter: %s", err)
 	}
 	stats.RegisterExporter(mw.exporter)
@@ -49,7 +55,7 @@ func newMetricsMiddleware(service string, reqLatencyBuckets []float64, ignore *m
 		"HTTP requests processing latency in seconds",
 		[]tag.Key{mw.tags["method"], mw.tags["path"], mw.tags["status"]},
 		mw.reqLatency,
-		stats.DistributionAggregation(reqLatencyBuckets),
+		stats.DistributionAggregation(config.reqLatencyBuckets),
 		stats.Cumulative{},
 	)
 	if err != nil {
@@ -77,6 +83,7 @@ func (mw *metricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, 
 
 	res := rw.(negroni.ResponseWriter)
 
+	// TODO: configurable tags
 	tagMap, err := tag.NewMap(r.Context(),
 		tag.Insert(mw.tags["method"], r.Method),
 		tag.Insert(mw.tags["path"], r.URL.Path),

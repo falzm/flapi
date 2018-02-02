@@ -31,14 +31,14 @@ func newService(bindAddr string, config *config) (*service, error) {
 	mwIgnore.Path("/delay")
 
 	httpLogs := newlogsMiddleware(log.Context("http"), mwIgnore)
-	httpMetrics, err := newMetricsMiddleware("flapi",
-		config.Metrics.LatencyHistogramBuckets,
-		mwIgnore,
-	)
+	httpMetrics, err := newMetricsMiddleware(&metricsMiddlewareConfig{
+		service:           "flapi",
+		ignore:            mwIgnore,
+		reqLatencyBuckets: config.Metrics.LatencyHistogramBuckets,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("metrics middleware init error: %s", err)
 	}
-
 	service.metrics = httpMetrics
 
 	router = mux.NewRouter()
