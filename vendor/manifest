@@ -2,6 +2,18 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/alecthomas/template",
+			"repository": "https://github.com/alecthomas/template",
+			"revision": "a0175ee3bccc567396460bf5acd36800cb10c49c",
+			"branch": "master"
+		},
+		{
+			"importpath": "github.com/alecthomas/units",
+			"repository": "https://github.com/alecthomas/units",
+			"revision": "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a",
+			"branch": "master"
+		},
+		{
 			"importpath": "github.com/beorn7/perks/quantile",
 			"repository": "https://github.com/beorn7/perks",
 			"revision": "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9",
@@ -126,6 +138,25 @@
 			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
 			"branch": "master",
 			"path": "/tag"
+		},
+		{
+			"importpath": "golang.org/x/net/publicsuffix",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1",
+			"branch": "master",
+			"path": "/publicsuffix"
+		},
+		{
+			"importpath": "gopkg.in/alecthomas/kingpin.v2",
+			"repository": "https://gopkg.in/alecthomas/kingpin.v2",
+			"revision": "947dcec5ba9c011838740e680966fd7087a71d0d",
+			"branch": "master"
+		},
+		{
+			"importpath": "gopkg.in/h2non/gentleman.v2",
+			"repository": "https://gopkg.in/h2non/gentleman.v2",
+			"revision": "e0f81be2f4064ea7aa7470e9daddd2dc8e8152c7",
+			"branch": "master"
 		},
 		{
 			"importpath": "gopkg.in/yaml.v2",
