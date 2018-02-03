@@ -84,7 +84,7 @@ func (mw *metricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, 
 	res := rw.(negroni.ResponseWriter)
 
 	// TODO: configurable tags
-	tagMap, err := tag.NewMap(r.Context(),
+	ctx, err := tag.New(r.Context(),
 		tag.Insert(mw.tags["method"], r.Method),
 		tag.Insert(mw.tags["path"], r.URL.Path),
 		tag.Insert(mw.tags["status"], strconv.Itoa(res.Status())),
@@ -94,8 +94,7 @@ func (mw *metricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	stats.Record(tag.NewContext(r.Context(), tagMap),
-		mw.reqLatency.M(float64(time.Since(start).Nanoseconds())/1000000000))
+	stats.Record(ctx, mw.reqLatency.M(float64(time.Since(start).Nanoseconds())/1000000000))
 }
 
 func (m *metricsMiddleware) ServeMetrics() http.Handler {

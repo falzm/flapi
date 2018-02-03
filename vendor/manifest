@@ -135,7 +135,7 @@
 		{
 			"importpath": "go.opencensus.io/tag",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
+			"revision": "7a3c63ab1c5772f940fb091832581522533e432f",
 			"branch": "master",
 			"path": "/tag"
 		},
