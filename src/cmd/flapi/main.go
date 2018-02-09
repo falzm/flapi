@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -66,7 +67,11 @@ func main() {
 
 	log.Debug("listening on %s", flagBindAddr)
 
-	service.run()
+	if err := service.run(); err != nil {
+		if err != http.ErrServerClosed {
+			log.Error("service: %s", err)
+		}
+	}
 
 	log.Notice("terminating")
 }

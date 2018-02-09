@@ -22,6 +22,7 @@ func newService(bindAddr string, config *config) (*service, error) {
 		service  service
 		handlers *negroni.Negroni
 		router   *mux.Router
+		err      error
 	)
 
 	handlers = negroni.New()
@@ -43,10 +44,19 @@ func newService(bindAddr string, config *config) (*service, error) {
 
 	router = mux.NewRouter()
 
-	service.endpoints = config.endpoints()
-	for _, e := range service.endpoints {
-		router.HandleFunc(apiPrefix+e.route, e.handler).
-			Methods(e.method)
+	service.endpoints = make(map[string]*endpoint)
+	for _, e := range config.Endpoints {
+		if service.endpoints[e.Method+e.Route], err = newEndpoint(
+			e.Method,
+			e.Route,
+			e.ResponseStatus,
+			e.ResponseBody,
+			e.Chain,
+		); err != nil {
+			return nil, fmt.Errorf("invalid endpoint: %s", err)
+		}
+		router.HandleFunc(apiPrefix+e.Route, service.endpoints[e.Method+e.Route].handler).
+			Methods(e.Method)
 	}
 
 	router.HandleFunc("/delay", service.handleDelay).

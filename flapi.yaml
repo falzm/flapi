@@ -29,3 +29,13 @@ endpoints:
   route: /c
   response_status: 200
   response_body: C
+
+### Endpoints chaining
+# endpoints:
+# - method: GET
+#   route: /a
+#   chain:
+#   - method: GET
+#     url: http://localhost:8001/api/b
+#   - method: GET
+#     url: http://localhost:8002/api/c
