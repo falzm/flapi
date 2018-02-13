@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/facette/httputil"
@@ -114,9 +116,15 @@ func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
 				targetResponses[i] = fmt.Sprintf("error: %s", err)
 				continue
 			}
+			defer res.Body.Close()
 
-			// TODO: include target response content
-			targetResponses[i] = res.Status
+			data, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				finalStatus = http.StatusInternalServerError
+				continue
+			}
+
+			targetResponses[i] = fmt.Sprintf("HTTP %s: %s", res.Status, strings.TrimSpace(string(data)))
 		}
 
 		httputil.WriteJSON(rw, targetResponses, finalStatus)
