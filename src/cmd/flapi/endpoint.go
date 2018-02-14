@@ -101,6 +101,8 @@ func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
 		time.Sleep(e.delay)
 	}
 
+	rw.Header().Set("X-Flapi-Version", version)
+
 	if e.targets == nil {
 		rw.WriteHeader(e.responseStatus)
 		fmt.Fprintf(rw, "%s\n", e.responseBody)

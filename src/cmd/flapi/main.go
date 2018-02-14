@@ -3,9 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
+	"path"
+	"runtime"
 	"syscall"
 
 	"github.com/facette/logger"
@@ -19,9 +22,14 @@ const (
 )
 
 var (
-	flagConfigPath string
+	version   string
+	buildDate string
+
 	flagBindAddr   string
+	flagConfigPath string
+	flagHelp       bool
 	flagLogLevel   string
+	flagVersion    bool
 
 	log *logger.Logger
 )
@@ -29,8 +37,10 @@ var (
 func init() {
 	var err error
 
-	flag.StringVar(&flagConfigPath, "config", defaultConfigPath, "path to configuration file")
+	flag.BoolVar(&flagHelp, "help", false, "display this help and exit")
+	flag.BoolVar(&flagVersion, "version", false, "display version and exit")
 	flag.StringVar(&flagBindAddr, "bind-addr", defaultBindAddr, "network [address]:port to bind to")
+	flag.StringVar(&flagConfigPath, "config", defaultConfigPath, "path to configuration file")
 	flag.StringVar(&flagLogLevel, "log-level", defaultLogLevel, "logging level")
 	flag.Parse()
 
@@ -40,6 +50,14 @@ func init() {
 }
 
 func main() {
+	if flagHelp {
+		printUsage(os.Stdout)
+		os.Exit(0)
+	} else if flagVersion {
+		printVersion(version, buildDate)
+		os.Exit(0)
+	}
+
 	config, err := loadConfig(flagConfigPath)
 	if err != nil {
 		dieOnError("unable to load configuration: %s", err)
@@ -79,4 +97,25 @@ func main() {
 func dieOnError(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, fmt.Sprintf("error: %s\n", format), a...)
 	os.Exit(1)
+}
+
+func printUsage(output io.Writer) {
+	fmt.Fprintf(output, "Usage: %s [options]", path.Base(os.Args[0]))
+	fmt.Fprint(output, "\n\nOptions:\n")
+
+	flag.VisitAll(func(f *flag.Flag) {
+		fmt.Fprintf(output, "   -%s  %s (default: %q)\n", f.Name, f.Usage, f.DefValue)
+	})
+
+	os.Exit(2)
+}
+
+func printVersion(version, buildDate string) {
+	fmt.Printf("%s version %s, built on %s\nGo version: %s (%s)\n",
+		path.Base(os.Args[0]),
+		version,
+		buildDate,
+		runtime.Version(),
+		runtime.Compiler,
+	)
 }
