@@ -4,7 +4,7 @@ BUILD_DATE := $(shell date +%F)
 all: flapi flapctl
 
 flapi:
-	@gb	build -ldflags "\
+	@gb build -ldflags "\
 		-X main.version=$(VERSION) \
 		-X main.buildDate=$(BUILD_DATE) \
 		" \
