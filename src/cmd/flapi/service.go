@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	"middleware"
+
 	"github.com/facette/logger"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
@@ -31,7 +33,7 @@ func newService(bindAddr string, config *config) (*service, error) {
 	mwIgnore.Path("/metrics")
 	mwIgnore.Path("/delay")
 
-	httpLogs := newlogsMiddleware(log.Context("http"), mwIgnore)
+	httpLogs := middleware.NewLoggingMiddleware(log.Context("http"), mwIgnore)
 	httpMetrics, err := newMetricsMiddleware(&metricsMiddlewareConfig{
 		service:           "flapi",
 		ignore:            mwIgnore,

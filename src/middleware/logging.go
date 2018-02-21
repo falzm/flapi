@@ -1,4 +1,4 @@
-package main
+package middleware
 
 import (
 	"net/http"
@@ -9,13 +9,13 @@ import (
 	"github.com/urfave/negroni"
 )
 
-type logsMiddleware struct {
+type LoggingMiddleware struct {
 	ignore *mux.Router
 	log    *logger.Logger
 }
 
-func newlogsMiddleware(logger *logger.Logger, ignore *mux.Router) *logsMiddleware {
-	mw := logsMiddleware{
+func NewLoggingMiddleware(logger *logger.Logger, ignore *mux.Router) *LoggingMiddleware {
+	mw := LoggingMiddleware{
 		log:    logger,
 		ignore: ignore,
 	}
@@ -23,7 +23,7 @@ func newlogsMiddleware(logger *logger.Logger, ignore *mux.Router) *logsMiddlewar
 	return &mw
 }
 
-func (mw *logsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (mw *LoggingMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	start := time.Now()
 
 	next(rw, r)
