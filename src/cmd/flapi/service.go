@@ -16,7 +16,6 @@ import (
 type service struct {
 	server    *http.Server
 	endpoints map[string]*endpoint
-	metrics   *metricsMiddleware
 }
 
 func newService(bindAddr string, config *config) (*service, error) {
@@ -34,15 +33,14 @@ func newService(bindAddr string, config *config) (*service, error) {
 	mwIgnore.Path("/delay")
 
 	httpLogs := middleware.NewLoggingMiddleware(log.Context("http"), mwIgnore)
-	httpMetrics, err := newMetricsMiddleware(&metricsMiddlewareConfig{
-		service:           "flapi",
-		ignore:            mwIgnore,
-		reqLatencyBuckets: config.Metrics.LatencyHistogramBuckets,
+	httpMetrics, err := middleware.NewMetricsMiddleware(&middleware.MetricsMiddlewareConfig{
+		Service:           "flapi",
+		Ignore:            mwIgnore,
+		ReqLatencyBuckets: config.Metrics.LatencyHistogramBuckets,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("metrics middleware init error: %s", err)
 	}
-	service.metrics = httpMetrics
 
 	router = mux.NewRouter()
 

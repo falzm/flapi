@@ -1,4 +1,4 @@
-package main
+package middleware
 
 import (
 	"fmt"
@@ -13,29 +13,29 @@ import (
 	"go.opencensus.io/tag"
 )
 
-type metricsMiddlewareConfig struct {
-	service           string
-	ignore            *mux.Router
-	reqLatencyBuckets []float64
+type MetricsMiddlewareConfig struct {
+	Service           string
+	Ignore            *mux.Router
+	ReqLatencyBuckets []float64
 }
 
-type metricsMiddleware struct {
+type MetricsMiddleware struct {
 	exporter   *prometheus.Exporter
 	ignore     *mux.Router
 	reqLatency *stats.MeasureFloat64
 	tags       map[string]tag.Key
 }
 
-func newMetricsMiddleware(config *metricsMiddlewareConfig) (*metricsMiddleware, error) {
+func NewMetricsMiddleware(config *MetricsMiddlewareConfig) (*MetricsMiddleware, error) {
 	var (
 		err error
-		mw  = metricsMiddleware{
-			ignore: config.ignore,
+		mw  = MetricsMiddleware{
+			ignore: config.Ignore,
 			tags:   map[string]tag.Key{},
 		}
 	)
 
-	if mw.exporter, err = prometheus.NewExporter(prometheus.Options{Namespace: config.service}); err != nil {
+	if mw.exporter, err = prometheus.NewExporter(prometheus.Options{Namespace: config.Service}); err != nil {
 		return nil, fmt.Errorf("unable to init Prometheus exporter: %s", err)
 	}
 	stats.RegisterExporter(mw.exporter)
@@ -55,7 +55,7 @@ func newMetricsMiddleware(config *metricsMiddlewareConfig) (*metricsMiddleware, 
 		"HTTP requests processing latency in seconds",
 		[]tag.Key{mw.tags["method"], mw.tags["path"], mw.tags["status"]},
 		mw.reqLatency,
-		stats.DistributionAggregation(config.reqLatencyBuckets),
+		stats.DistributionAggregation(config.ReqLatencyBuckets),
 		stats.Cumulative{},
 	)
 	if err != nil {
@@ -71,7 +71,7 @@ func newMetricsMiddleware(config *metricsMiddlewareConfig) (*metricsMiddleware, 
 	return &mw, nil
 }
 
-func (mw *metricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+func (mw *MetricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	start := time.Now()
 
 	next(rw, r)
@@ -90,13 +90,12 @@ func (mw *metricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, 
 		tag.Insert(mw.tags["status"], strconv.Itoa(res.Status())),
 	)
 	if err != nil {
-		log.Error("metricsMiddleware: unable to create tag map: %s", err)
 		return
 	}
 
 	stats.Record(ctx, mw.reqLatency.M(float64(time.Since(start).Nanoseconds())/1000000000))
 }
 
-func (m *metricsMiddleware) ServeMetrics() http.Handler {
+func (m *MetricsMiddleware) ServeMetrics() http.Handler {
 	return m.exporter
 }
