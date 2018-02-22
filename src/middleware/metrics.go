@@ -15,7 +15,6 @@ import (
 
 type MetricsMiddlewareConfig struct {
 	Service           string
-	Ignore            *mux.Router
 	ReqLatencyBuckets []float64
 }
 
@@ -26,11 +25,11 @@ type MetricsMiddleware struct {
 	tags       map[string]tag.Key
 }
 
-func NewMetricsMiddleware(config *MetricsMiddlewareConfig) (*MetricsMiddleware, error) {
+func NewMetricsMiddleware(config *MetricsMiddlewareConfig, ignore *mux.Router) (*MetricsMiddleware, error) {
 	var (
 		err error
 		mw  = MetricsMiddleware{
-			ignore: config.Ignore,
+			ignore: ignore,
 			tags:   map[string]tag.Key{},
 		}
 	)

@@ -9,14 +9,18 @@ import (
 	"github.com/urfave/negroni"
 )
 
+type LoggingMiddlewareConfig struct {
+	Logger *logger.Logger
+}
+
 type LoggingMiddleware struct {
 	ignore *mux.Router
 	log    *logger.Logger
 }
 
-func NewLoggingMiddleware(logger *logger.Logger, ignore *mux.Router) *LoggingMiddleware {
+func NewLoggingMiddleware(config *LoggingMiddlewareConfig, ignore *mux.Router) *LoggingMiddleware {
 	mw := LoggingMiddleware{
-		log:    logger,
+		log:    config.Logger,
 		ignore: ignore,
 	}
 
