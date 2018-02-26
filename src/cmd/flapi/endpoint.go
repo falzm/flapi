@@ -4,11 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/facette/httputil"
 )
@@ -38,14 +36,7 @@ type endpoint struct {
 	responseStatus int
 	responseBody   string
 	targets        []endpointTarget
-	delay          time.Duration
-	probability    float64
 }
-
-var (
-	defaultProbability = 1.0
-	maxRandBaseDelay   = 5
-)
 
 func newEndpoint(method, route string, responseStatus int, responseBody string,
 	targets []configEndpointTarget) (*endpoint, error) {
@@ -93,14 +84,6 @@ func newEndpoint(method, route string, responseStatus int, responseBody string,
 }
 
 func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
-	// Base random delay to avoid flat-lining
-	time.Sleep(time.Duration(1+rand.Intn(maxRandBaseDelay)) * time.Millisecond)
-
-	// User-configurable probabilistic delay
-	if p := rand.Float64(); p > 1-e.probability {
-		time.Sleep(e.delay)
-	}
-
 	rw.Header().Set("X-Flapi-Version", version)
 
 	if e.targets == nil {
@@ -131,9 +114,4 @@ func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
 
 		httputil.WriteJSON(rw, targetResponses, finalStatus)
 	}
-}
-
-func (e *endpoint) setDelay(delay time.Duration, probability float64) {
-	e.delay = delay
-	e.probability = probability
 }

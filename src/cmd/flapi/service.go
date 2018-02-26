@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"strconv"
-	"time"
 
 	"middleware"
 
@@ -30,7 +28,6 @@ func newService(bindAddr string, config *config) (*service, error) {
 
 	mwIgnore := mux.NewRouter()
 	mwIgnore.Path("/metrics")
-	mwIgnore.Path("/delay")
 
 	httpLogs := middleware.NewLoggingMiddleware(&middleware.LoggingMiddlewareConfig{Logger: log.Context("http")},
 		mwIgnore)
@@ -43,6 +40,9 @@ func newService(bindAddr string, config *config) (*service, error) {
 	if err != nil {
 		return nil, fmt.Errorf("metrics middleware init error: %s", err)
 	}
+
+	httpDelay := middleware.NewDelayMiddleware(&middleware.DelayMiddlewareConfig{},
+		mwIgnore)
 
 	router = mux.NewRouter()
 
@@ -61,7 +61,7 @@ func newService(bindAddr string, config *config) (*service, error) {
 			Methods(e.Method)
 	}
 
-	router.HandleFunc("/delay", service.handleDelay).
+	router.HandleFunc("/delay", httpDelay.HandleDelay).
 		Methods("GET", "PUT")
 
 	router.Handle("/metrics", httpMetrics.ServeMetrics()).
@@ -69,6 +69,7 @@ func newService(bindAddr string, config *config) (*service, error) {
 
 	handlers.Use(httpLogs)
 	handlers.Use(httpMetrics)
+	handlers.Use(httpDelay)
 
 	handlers.UseHandler(router)
 
@@ -78,69 +79,6 @@ func newService(bindAddr string, config *config) (*service, error) {
 	}
 
 	return &service, nil
-}
-
-func (s *service) handleDelay(rw http.ResponseWriter, r *http.Request) {
-	method := r.URL.Query().Get("method")
-	if method == "" {
-		http.Error(rw, "Missing value for method parameter", http.StatusBadRequest)
-		return
-	}
-
-	route := r.URL.Query().Get("route")
-	if route == "" {
-		http.Error(rw, "Missing value for route parameter", http.StatusBadRequest)
-		return
-	}
-
-	e, ok := s.endpoints[method+route]
-	if !ok {
-		http.Error(rw, "No such endpoint", http.StatusNotFound)
-		return
-	}
-
-	switch r.Method {
-	case "GET":
-		fmt.Fprintf(rw, "%s (probability: %.1f)\n", e.delay, e.probability)
-		return
-
-	case "PUT":
-		delay := r.URL.Query().Get("delay")
-		if delay == "" {
-			http.Error(rw, "Missing value for delay parameter", http.StatusBadRequest)
-			return
-		}
-
-		delayValue, err := strconv.ParseFloat(delay, 64)
-		if err != nil {
-			http.Error(rw, "Invalid value for delay parameter", http.StatusBadRequest)
-			return
-		}
-
-		probability := defaultProbability
-		if r.URL.Query().Get("probability") != "" {
-			probability, err = strconv.ParseFloat(r.URL.Query().Get("probability"), 64)
-			if err != nil {
-				http.Error(rw, "Invalid value for probability parameter", http.StatusBadRequest)
-				return
-			}
-		}
-		if probability < 0 || probability > 1 {
-			http.Error(rw, "Probability parameter value must be 0 < p < 1 ", http.StatusBadRequest)
-			return
-		}
-
-		e.setDelay(time.Duration(delayValue)*time.Millisecond, probability)
-		log.Info("delay for endpoint %s:%s adjusted to %s with probability %.1f",
-			e.method,
-			e.route,
-			e.delay,
-			e.probability,
-		)
-
-		rw.WriteHeader(http.StatusNoContent)
-		return
-	}
 }
 
 func (s *service) run() error {
