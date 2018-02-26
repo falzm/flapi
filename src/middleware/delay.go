@@ -20,7 +20,7 @@ type DelayMiddlewareConfig struct {
 
 type DelayMiddleware struct {
 	ignore    *mux.Router
-	baseDelay int
+	baseDelay time.Duration
 	endpoints map[string]delaySpec
 }
 
@@ -44,7 +44,7 @@ func (mw *DelayMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, ne
 	}
 
 	// Base random delay to avoid flat-lining
-	time.Sleep(time.Duration(mw.baseDelay) * time.Millisecond)
+	time.Sleep(mw.baseDelay)
 
 	// User-configurable probabilistic delay
 	ds, ok := mw.endpoints[r.Method+r.URL.Path]
@@ -58,29 +58,37 @@ func (mw *DelayMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, ne
 }
 
 func (mw *DelayMiddleware) HandleDelay(rw http.ResponseWriter, r *http.Request) {
-	// TODO: make base delay adjustable too (e.g. query string parameter `base`)
+	var (
+		method string
+		route  string
+	)
 
-	method := r.URL.Query().Get("method")
-	if method == "" {
-		http.Error(rw, "Missing value for method parameter", http.StatusBadRequest)
-		return
-	}
+	if mux.Vars(r)["target"] == "endpoint" {
+		if method = r.URL.Query().Get("method"); method == "" {
+			http.Error(rw, "Missing value for method parameter", http.StatusBadRequest)
+			return
+		}
 
-	route := r.URL.Query().Get("route")
-	if route == "" {
-		http.Error(rw, "Missing value for route parameter", http.StatusBadRequest)
-		return
+		if route = r.URL.Query().Get("route"); route == "" {
+			http.Error(rw, "Missing value for route parameter", http.StatusBadRequest)
+			return
+		}
 	}
 
 	switch r.Method {
 	case "GET":
-		ds, ok := mw.endpoints[method+route]
-		if !ok {
-			http.Error(rw, "No such endpoint", http.StatusNotFound)
-			return
+		if mux.Vars(r)["target"] == "base" {
+			fmt.Fprintf(rw, "%s\n", mw.baseDelay)
+		} else {
+			ds, ok := mw.endpoints[method+route]
+			if !ok {
+				http.Error(rw, "No such endpoint", http.StatusNotFound)
+				return
+			}
+
+			fmt.Fprintf(rw, "%s (probability: %.1f)\n", ds.duration, ds.probability)
 		}
 
-		fmt.Fprintf(rw, "%s (probability: %.1f)\n", ds.duration, ds.probability)
 		return
 
 	case "PUT":
@@ -96,22 +104,26 @@ func (mw *DelayMiddleware) HandleDelay(rw http.ResponseWriter, r *http.Request) 
 			return
 		}
 
-		probability := defaultProbability
-		if r.URL.Query().Get("probability") != "" {
-			probability, err = strconv.ParseFloat(r.URL.Query().Get("probability"), 64)
-			if err != nil {
-				http.Error(rw, "Invalid value for probability parameter", http.StatusBadRequest)
+		if mux.Vars(r)["target"] == "base" {
+			mw.baseDelay = time.Duration(durationValue) * time.Millisecond
+		} else {
+			probability := defaultProbability
+			if r.URL.Query().Get("probability") != "" {
+				probability, err = strconv.ParseFloat(r.URL.Query().Get("probability"), 64)
+				if err != nil {
+					http.Error(rw, "Invalid value for probability parameter", http.StatusBadRequest)
+					return
+				}
+			}
+			if probability < 0 || probability > 1 {
+				http.Error(rw, "Probability parameter value must be 0 < p < 1 ", http.StatusBadRequest)
 				return
 			}
-		}
-		if probability < 0 || probability > 1 {
-			http.Error(rw, "Probability parameter value must be 0 < p < 1 ", http.StatusBadRequest)
-			return
-		}
 
-		mw.endpoints[method+route] = delaySpec{
-			duration:    time.Duration(durationValue) * time.Millisecond,
-			probability: probability,
+			mw.endpoints[method+route] = delaySpec{
+				duration:    time.Duration(durationValue) * time.Millisecond,
+				probability: probability,
+			}
 		}
 
 		rw.WriteHeader(http.StatusNoContent)
