@@ -127,6 +127,15 @@ func (mw *DelayMiddleware) HandleDelay(rw http.ResponseWriter, r *http.Request) 
 		rw.WriteHeader(http.StatusNoContent)
 		return
 
-		// TODO: add support for method DELETE
+	case "DELETE":
+		if _, ok := mw.endpoints[method+route]; !ok {
+			http.Error(rw, "No such endpoint", http.StatusNotFound)
+			return
+		}
+
+		delete(mw.endpoints, method+route)
+
+		rw.WriteHeader(http.StatusNoContent)
+		return
 	}
 }
