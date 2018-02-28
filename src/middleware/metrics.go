@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 	"go.opencensus.io/exporter/prometheus"
 	"go.opencensus.io/stats"
@@ -19,18 +18,19 @@ type MetricsMiddlewareConfig struct {
 }
 
 type MetricsMiddleware struct {
+	*middleware
+
 	exporter   *prometheus.Exporter
-	ignore     *mux.Router
 	reqLatency *stats.MeasureFloat64
 	tags       map[string]tag.Key
 }
 
-func NewMetricsMiddleware(config *MetricsMiddlewareConfig, ignore *mux.Router) (*MetricsMiddleware, error) {
+func NewMetricsMiddleware(config *MetricsMiddlewareConfig, ignore []string) (*MetricsMiddleware, error) {
 	var (
 		err error
 		mw  = MetricsMiddleware{
-			ignore: ignore,
-			tags:   map[string]tag.Key{},
+			middleware: newMiddleware(ignore),
+			tags:       map[string]tag.Key{},
 		}
 	)
 
@@ -75,24 +75,21 @@ func (mw *MetricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, 
 
 	next(rw, r)
 
-	var routeMatch mux.RouteMatch
-	if mw.ignore != nil && mw.ignore.Match(r, &routeMatch) {
-		return
+	if !mw.isIgnored(r) {
+		res := rw.(negroni.ResponseWriter)
+
+		// TODO: configurable tags
+		ctx, err := tag.New(r.Context(),
+			tag.Insert(mw.tags["method"], r.Method),
+			tag.Insert(mw.tags["path"], r.URL.Path),
+			tag.Insert(mw.tags["status"], strconv.Itoa(res.Status())),
+		)
+		if err != nil {
+			return
+		}
+
+		stats.Record(ctx, mw.reqLatency.M(float64(time.Since(start).Nanoseconds())/1000000000))
 	}
-
-	res := rw.(negroni.ResponseWriter)
-
-	// TODO: configurable tags
-	ctx, err := tag.New(r.Context(),
-		tag.Insert(mw.tags["method"], r.Method),
-		tag.Insert(mw.tags["path"], r.URL.Path),
-		tag.Insert(mw.tags["status"], strconv.Itoa(res.Status())),
-	)
-	if err != nil {
-		return
-	}
-
-	stats.Record(ctx, mw.reqLatency.M(float64(time.Since(start).Nanoseconds())/1000000000))
 }
 
 func (m *MetricsMiddleware) HandleMetrics(rw http.ResponseWriter, r *http.Request) {

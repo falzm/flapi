@@ -26,23 +26,20 @@ func newService(bindAddr string, config *config) (*service, error) {
 
 	handlers = negroni.New()
 
-	mwIgnore := mux.NewRouter()
-	mwIgnore.Path("/metrics")
-
 	httpLogs := middleware.NewLoggingMiddleware(&middleware.LoggingMiddlewareConfig{Logger: log.Context("http")},
-		mwIgnore)
+		[]string{"/metrics", "/delay"})
 
 	httpMetrics, err := middleware.NewMetricsMiddleware(&middleware.MetricsMiddlewareConfig{
 		Service:           "flapi",
 		ReqLatencyBuckets: config.Metrics.LatencyHistogramBuckets,
 	},
-		mwIgnore)
+		[]string{"/metrics", "/delay"})
 	if err != nil {
 		return nil, fmt.Errorf("metrics middleware init error: %s", err)
 	}
 
 	httpDelay := middleware.NewDelayMiddleware(&middleware.DelayMiddlewareConfig{},
-		mwIgnore)
+		[]string{"/metrics", "/delay"})
 
 	router = mux.NewRouter()
 
@@ -62,7 +59,7 @@ func newService(bindAddr string, config *config) (*service, error) {
 	}
 
 	router.HandleFunc("/delay/{target}", httpDelay.HandleDelay).
-		Methods("GET", "PUT")
+		Methods("GET", "PUT", "DELETE")
 
 	router.HandleFunc("/metrics", httpMetrics.HandleMetrics).
 		Methods("GET")

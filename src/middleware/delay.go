@@ -19,38 +19,36 @@ type DelayMiddlewareConfig struct {
 }
 
 type DelayMiddleware struct {
-	ignore    *mux.Router
+	*middleware
+
 	baseDelay time.Duration
 	endpoints map[string]delaySpec
 }
 
 var (
-	defaultProbability = 1.0
+	defaultDelayProbability = 1.0
 )
 
-func NewDelayMiddleware(config *DelayMiddlewareConfig, ignore *mux.Router) *DelayMiddleware {
+func NewDelayMiddleware(config *DelayMiddlewareConfig, ignore []string) *DelayMiddleware {
 	mw := DelayMiddleware{
-		ignore:    ignore,
-		endpoints: make(map[string]delaySpec),
+		middleware: newMiddleware(ignore),
+		endpoints:  make(map[string]delaySpec),
 	}
 
 	return &mw
 }
 
 func (mw *DelayMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	var routeMatch mux.RouteMatch
-	if mw.ignore != nil && mw.ignore.Match(r, &routeMatch) {
-		return
-	}
+	if !mw.isIgnored(r) {
+		// Base random delay to avoid flat-lining
+		time.Sleep(mw.baseDelay)
 
-	// Base random delay to avoid flat-lining
-	time.Sleep(mw.baseDelay)
-
-	// User-configurable probabilistic delay
-	ds, ok := mw.endpoints[r.Method+r.URL.Path]
-	if ok {
-		if p := rand.Float64(); p > 1-ds.probability {
-			time.Sleep(ds.duration)
+		// User-configurable probabilistic delay
+		ds, ok := mw.endpoints[r.Method+r.URL.Path]
+		if ok {
+			if p := rand.Float64(); p > 1-ds.probability {
+				time.Sleep(ds.duration)
+			}
 		}
 	}
 
@@ -107,7 +105,7 @@ func (mw *DelayMiddleware) HandleDelay(rw http.ResponseWriter, r *http.Request) 
 		if mux.Vars(r)["target"] == "base" {
 			mw.baseDelay = time.Duration(durationValue) * time.Millisecond
 		} else {
-			probability := defaultProbability
+			probability := defaultDelayProbability
 			if r.URL.Query().Get("probability") != "" {
 				probability, err = strconv.ParseFloat(r.URL.Query().Get("probability"), 64)
 				if err != nil {
@@ -128,5 +126,7 @@ func (mw *DelayMiddleware) HandleDelay(rw http.ResponseWriter, r *http.Request) 
 
 		rw.WriteHeader(http.StatusNoContent)
 		return
+
+		// TODO: add support for method DELETE
 	}
 }
