@@ -26,20 +26,23 @@ func newService(bindAddr string, config *config) (*service, error) {
 
 	handlers = negroni.New()
 
-	httpLogs := middleware.NewLoggingMiddleware(&middleware.LoggingMiddlewareConfig{Logger: log.Context("http")},
-		[]string{"/metrics", "/delay"})
+	httpLogging := middleware.NewLoggingMiddleware(&middleware.LoggingMiddlewareConfig{Logger: log.Context("http")},
+		[]string{"/metrics", "/delay", "/error"})
 
 	httpMetrics, err := middleware.NewMetricsMiddleware(&middleware.MetricsMiddlewareConfig{
 		Service:           "flapi",
 		ReqLatencyBuckets: config.Metrics.LatencyHistogramBuckets,
 	},
-		[]string{"/metrics", "/delay"})
+		[]string{"/metrics", "/delay", "/error"})
 	if err != nil {
 		return nil, fmt.Errorf("metrics middleware init error: %s", err)
 	}
 
 	httpDelay := middleware.NewDelayMiddleware(&middleware.DelayMiddlewareConfig{},
-		[]string{"/metrics", "/delay"})
+		[]string{"/metrics", "/delay", "/error"})
+
+	httpError := middleware.NewErrorMiddleware(&middleware.ErrorMiddlewareConfig{},
+		[]string{"/metrics", "/delay", "/error"})
 
 	router = mux.NewRouter()
 
@@ -61,12 +64,20 @@ func newService(bindAddr string, config *config) (*service, error) {
 	router.HandleFunc("/delay/{target}", httpDelay.HandleDelay).
 		Methods("GET", "PUT", "DELETE")
 
+	router.HandleFunc("/error", httpError.HandleError).
+		Methods("GET", "PUT", "DELETE")
+
 	router.HandleFunc("/metrics", httpMetrics.HandleMetrics).
 		Methods("GET")
 
-	handlers.Use(httpLogs)
+	// /!\ Middleware chain order matters:
+	// - logging/metrics middleware have to be added first, since they measure the whole request process latency
+	// - error middleware has to be added last as it interrupts the request process latency, and instrumentation must
+	//   be performed before
+	handlers.Use(httpLogging)
 	handlers.Use(httpMetrics)
 	handlers.Use(httpDelay)
+	handlers.Use(httpError)
 
 	handlers.UseHandler(router)
 
