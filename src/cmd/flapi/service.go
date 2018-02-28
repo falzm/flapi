@@ -64,7 +64,7 @@ func newService(bindAddr string, config *config) (*service, error) {
 	router.HandleFunc("/delay/{target}", httpDelay.HandleDelay).
 		Methods("GET", "PUT")
 
-	router.Handle("/metrics", httpMetrics.ServeMetrics()).
+	router.HandleFunc("/metrics", httpMetrics.HandleMetrics).
 		Methods("GET")
 
 	handlers.Use(httpLogs)

@@ -95,6 +95,6 @@ func (mw *MetricsMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, 
 	stats.Record(ctx, mw.reqLatency.M(float64(time.Since(start).Nanoseconds())/1000000000))
 }
 
-func (m *MetricsMiddleware) ServeMetrics() http.Handler {
-	return m.exporter
+func (m *MetricsMiddleware) HandleMetrics(rw http.ResponseWriter, r *http.Request) {
+	m.exporter.ServeHTTP(rw, r)
 }
