@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type errorSpec struct {
@@ -40,7 +41,8 @@ func (mw *ErrorMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, ne
 	if !mw.isIgnored(r) {
 		es, ok := mw.endpoints[r.Method+r.URL.Path]
 		if ok {
-			if p := rand.Float64(); p > 1-es.probability {
+			rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
+			if p := rnd.Float64(); p > 1-es.probability {
 				http.Error(rw, es.message, es.statusCode)
 				return
 			}

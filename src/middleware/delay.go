@@ -44,9 +44,10 @@ func (mw *DelayMiddleware) ServeHTTP(rw http.ResponseWriter, r *http.Request, ne
 		time.Sleep(mw.baseDelay)
 
 		// User-configurable probabilistic delay
+		rnd := rand.New(rand.NewSource(time.Now().UnixNano()))
 		ds, ok := mw.endpoints[r.Method+r.URL.Path]
 		if ok {
-			if p := rand.Float64(); p > 1-ds.probability {
+			if p := rnd.Float64(); p > 1-ds.probability {
 				time.Sleep(ds.duration)
 			}
 		}
