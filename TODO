@@ -1,2 +1,3 @@
-# tags
-# document middleware
+* add tags
+* extract delay/error middleware into a dedicated `chaos` middleware
+* implement chaos middleware endpoints to a dedicated http router

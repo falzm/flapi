@@ -2,7 +2,7 @@ VERSION := 0.1.0
 BUILD_DATE := $(shell date +%F)
 DOCKER_TAG ?= flapi:$(VERSION)
 
-all: flapi flapctl
+all: flapi
 
 flapi:
 	@gb build -ldflags "\
@@ -10,9 +10,6 @@ flapi:
 		-X main.buildDate=$(BUILD_DATE) \
 		" \
 		cmd/flapi
-
-flapctl:
-	@gb build cmd/flapctl
 
 docker:
 	@docker build \
