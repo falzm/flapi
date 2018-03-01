@@ -10,7 +10,7 @@ metrics:
   - 5.0
   - 10.0
 
-endpoints:
+api_endpoints:
 - method: POST
   route: /a
   response_status: 201
@@ -30,8 +30,8 @@ endpoints:
   response_status: 200
   response_body: C
 
-### Endpoints chaining
-# endpoints:
+### API endpoints chaining
+# api_endpoints:
 # - method: GET
 #   route: /a
 #   chain:

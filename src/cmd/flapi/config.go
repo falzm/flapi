@@ -31,7 +31,7 @@ type configEndpoint struct {
 
 type config struct {
 	Metrics   configMetrics     `yaml:metrics`
-	Endpoints []*configEndpoint `yaml:"endpoints"`
+	Endpoints []*configEndpoint `yaml:"api_endpoints"`
 }
 
 func loadConfig(path string) (*config, error) {

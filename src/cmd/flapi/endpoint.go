@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -15,6 +16,13 @@ type endpointTarget struct {
 	client *http.Client
 	method string
 	url    *url.URL
+}
+
+func (e *endpointTarget) MarshalJSON() ([]byte, error) {
+	return json.Marshal(map[string]interface{}{
+		"method": e.method,
+		"url":    e.url.String(),
+	})
 }
 
 func (e *endpointTarget) request(ctx context.Context) (*http.Response, error) {
@@ -114,4 +122,20 @@ func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
 
 		httputil.WriteJSON(rw, targetResponses, finalStatus)
 	}
+}
+
+func (e *endpoint) MarshalJSON() ([]byte, error) {
+	je := map[string]interface{}{
+		"method": e.method,
+		"route":  e.route,
+	}
+
+	if e.targets != nil {
+		je["targets"] = e.targets
+	} else {
+		je["response_status"] = e.responseStatus
+		je["response_body"] = e.responseBody
+	}
+
+	return json.Marshal(je)
 }

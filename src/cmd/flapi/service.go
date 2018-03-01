@@ -6,6 +6,7 @@ import (
 
 	"middleware"
 
+	"github.com/facette/httputil"
 	"github.com/facette/logger"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
@@ -13,7 +14,7 @@ import (
 
 type service struct {
 	server    *http.Server
-	endpoints map[string]*endpoint
+	endpoints []*endpoint
 }
 
 func newService(bindAddr string, config *config) (*service, error) {
@@ -46,20 +47,30 @@ func newService(bindAddr string, config *config) (*service, error) {
 
 	router = mux.NewRouter()
 
-	service.endpoints = make(map[string]*endpoint)
-	for _, e := range config.Endpoints {
-		if service.endpoints[e.Method+e.Route], err = newEndpoint(
-			e.Method,
-			e.Route,
-			e.ResponseStatus,
-			e.ResponseBody,
-			e.Chain,
-		); err != nil {
+	service.endpoints = make([]*endpoint, len(config.Endpoints))
+	for i, _ := range config.Endpoints {
+		e, err := newEndpoint(
+			config.Endpoints[i].Method,
+			apiPrefix+config.Endpoints[i].Route,
+			config.Endpoints[i].ResponseStatus,
+			config.Endpoints[i].ResponseBody,
+			config.Endpoints[i].Chain,
+		)
+		if err != nil {
 			return nil, fmt.Errorf("invalid endpoint: %s", err)
 		}
-		router.HandleFunc(apiPrefix+e.Route, service.endpoints[e.Method+e.Route].handler).
-			Methods(e.Method)
+
+		service.endpoints[i] = e
+		router.HandleFunc(apiPrefix+e.route, e.handler).
+			Methods(e.method)
 	}
+
+	if len(service.endpoints) == 0 {
+		log.Warning("no API endpoints configured, check your configuration")
+	}
+
+	router.HandleFunc("/", service.handler).
+		Methods("GET")
 
 	router.HandleFunc("/delay/{target}", httpDelay.HandleDelay).
 		Methods("GET", "PUT", "DELETE")
@@ -97,4 +108,8 @@ func (s *service) shutdown() error {
 	logger.Notice("shutting down")
 
 	return s.server.Close()
+}
+
+func (s *service) handler(rw http.ResponseWriter, r *http.Request) {
+	httputil.WriteJSON(rw, s.endpoints, http.StatusOK)
 }
