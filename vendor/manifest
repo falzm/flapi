@@ -2,6 +2,13 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "git.apache.org/thrift.git/lib/go/thrift",
+			"repository": "https://git.apache.org/thrift.git",
+			"revision": "f338d576b715ddf1384eedbe301169eea74ea073",
+			"branch": "master",
+			"path": "/lib/go/thrift"
+		},
+		{
 			"importpath": "github.com/alecthomas/template",
 			"repository": "https://github.com/alecthomas/template",
 			"revision": "a0175ee3bccc567396460bf5acd36800cb10c49c",
@@ -118,32 +125,60 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "go.opencensus.io/exporter/jaeger",
+			"repository": "https://github.com/census-instrumentation/opencensus-go",
+			"revision": "6e008f8971f53840fe7b528ab3d733a38e54a4bb",
+			"branch": "master",
+			"path": "/exporter/jaeger"
+		},
+		{
 			"importpath": "go.opencensus.io/exporter/prometheus",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
+			"revision": "63c0fd980246c4a33e87a4bc4cd19e2e7ae0e315",
 			"branch": "master",
 			"path": "/exporter/prometheus"
 		},
 		{
 			"importpath": "go.opencensus.io/internal",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
+			"revision": "63c0fd980246c4a33e87a4bc4cd19e2e7ae0e315",
 			"branch": "master",
 			"path": "/internal"
 		},
 		{
 			"importpath": "go.opencensus.io/stats",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "8b94f8ff1baa54f51ea8970ec4765a218582b2f1",
+			"revision": "63c0fd980246c4a33e87a4bc4cd19e2e7ae0e315",
 			"branch": "master",
 			"path": "/stats"
 		},
 		{
 			"importpath": "go.opencensus.io/tag",
 			"repository": "https://github.com/census-instrumentation/opencensus-go",
-			"revision": "7a3c63ab1c5772f940fb091832581522533e432f",
+			"revision": "63c0fd980246c4a33e87a4bc4cd19e2e7ae0e315",
 			"branch": "master",
 			"path": "/tag"
+		},
+		{
+			"importpath": "go.opencensus.io/trace",
+			"repository": "https://github.com/census-instrumentation/opencensus-go",
+			"revision": "6e008f8971f53840fe7b528ab3d733a38e54a4bb",
+			"branch": "master",
+			"path": "/trace"
+		},
+		{
+			"importpath": "go.opencensus.io/trace/propagation",
+			"repository": "https://github.com/census-instrumentation/opencensus-go",
+			"revision": "63c0fd980246c4a33e87a4bc4cd19e2e7ae0e315",
+			"branch": "master",
+			"path": "/trace/propagation"
+		},
+		{
+			"importpath": "golang.org/x/net/context",
+			"repository": "https://go.googlesource.com/net",
+			"revision": "0ed95abb35c445290478a5348a7b38bb154135fd",
+			"branch": "master",
+			"path": "/context"
 		},
 		{
 			"importpath": "golang.org/x/net/publicsuffix",
@@ -151,6 +186,20 @@
 			"revision": "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1",
 			"branch": "master",
 			"path": "/publicsuffix"
+		},
+		{
+			"importpath": "golang.org/x/sync/semaphore",
+			"repository": "https://go.googlesource.com/sync",
+			"revision": "fd80eb99c8f653c847d294a001bdf2a3a6f768f5",
+			"branch": "master",
+			"path": "/semaphore"
+		},
+		{
+			"importpath": "google.golang.org/api/support/bundler",
+			"repository": "https://code.googlesource.com/google-api-go-client",
+			"revision": "ffa5046912fde3e38fd41244f9593c99431ecfa2",
+			"branch": "master",
+			"path": "/support/bundler"
 		},
 		{
 			"importpath": "gopkg.in/alecthomas/kingpin.v2",

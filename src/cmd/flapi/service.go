@@ -44,6 +44,18 @@ func newService(bindAddr string, config *config) (*service, error) {
 	httpError := middleware.NewErrorMiddleware(&middleware.ErrorMiddlewareConfig{},
 		[]string{"/metrics", "/delay", "/error"})
 
+	if config.Trace.JaegerEndpoint != "" {
+		httpTrace, err := middleware.NewTraceMiddleware(&middleware.TraceMiddlewareConfig{
+			Service:        "flapi",
+			JaegerEndpoint: config.Trace.JaegerEndpoint,
+		},
+			[]string{"/metrics", "/delay", "/error"})
+		if err != nil {
+			return nil, fmt.Errorf("trace middleware init error: %s", err)
+		}
+		handlers.Use(httpTrace)
+	}
+
 	router = mux.NewRouter()
 
 	service.endpoints = make(map[string]*endpoint)

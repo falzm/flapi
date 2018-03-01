@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/facette/httputil"
+	"go.opencensus.io/trace"
 )
 
 type endpointTarget struct {
@@ -18,6 +19,15 @@ type endpointTarget struct {
 }
 
 func (e *endpointTarget) request(ctx context.Context) (*http.Response, error) {
+	_, span := trace.StartSpan(ctx, e.url.String())
+	defer span.End()
+
+	span.SetAttributes(
+		trace.StringAttribute{Key: "method", Value: e.method},
+	)
+
+	// TODO: propagate trace context to child requests (go.opencensus.io/trace/propagation)
+
 	e.client = http.DefaultClient
 
 	log.Debug("requesting target endpoint: %s %s", e.method, e.url.String())

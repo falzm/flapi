@@ -12,6 +12,10 @@ var (
 	defaultMetricsLatencyHistogramBuckets = []float64{0.01, 0.05, 0.1, 0.5, 1.0, 5.0, 10.0, 30.0}
 )
 
+type configTrace struct {
+	JaegerEndpoint string `yaml:"jaeger_endpoint"`
+}
+
 type configMetrics struct {
 	LatencyHistogramBuckets []float64 `yaml:"latency_histogram_buckets"`
 }
@@ -31,6 +35,7 @@ type configEndpoint struct {
 
 type config struct {
 	Metrics   configMetrics     `yaml:metrics`
+	Trace     configTrace       `yaml:trace`
 	Endpoints []*configEndpoint `yaml:"endpoints"`
 }
 
