@@ -61,7 +61,7 @@ func newService(bindAddr string, config *config) (*service, error) {
 		}
 
 		service.endpoints[i] = e
-		router.HandleFunc(apiPrefix+e.route, e.handler).
+		router.HandleFunc(e.route, e.handler).
 			Methods(e.method)
 	}
 
