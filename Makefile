@@ -1,4 +1,4 @@
-VERSION := 0.1.0
+VERSION := 0.1.0dev
 BUILD_DATE := $(shell date +%F)
 DOCKER_TAG ?= flapi:$(VERSION)
 
