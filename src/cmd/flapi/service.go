@@ -4,10 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"middleware"
-
 	"github.com/facette/httputil"
 	"github.com/facette/logger"
+	"github.com/falzm/chaos"
 	"github.com/gorilla/mux"
 	"github.com/urfave/negroni"
 )
@@ -25,25 +24,18 @@ func newService(bindAddr string, config *config) (*service, error) {
 		err      error
 	)
 
-	handlers = negroni.New()
-
-	httpLogging := middleware.NewLoggingMiddleware(&middleware.LoggingMiddlewareConfig{Logger: log.Context("http")},
-		[]string{"/metrics", "/delay", "/error"})
-
-	httpMetrics, err := middleware.NewMetricsMiddleware(&middleware.MetricsMiddlewareConfig{
-		Service:           "flapi",
-		ReqLatencyBuckets: config.Metrics.LatencyHistogramBuckets,
-	},
-		[]string{"/metrics", "/delay", "/error"})
+	httpMetrics, err := newMetricsMiddleware(&metricsMiddlewareConfig{
+		service:           "flapi",
+		reqLatencyBuckets: config.Metrics.LatencyHistogramBuckets,
+	})
 	if err != nil {
 		return nil, fmt.Errorf("metrics middleware init error: %s", err)
 	}
 
-	httpDelay := middleware.NewDelayMiddleware(&middleware.DelayMiddlewareConfig{},
-		[]string{"/metrics", "/delay", "/error"})
-
-	httpError := middleware.NewErrorMiddleware(&middleware.ErrorMiddlewareConfig{},
-		[]string{"/metrics", "/delay", "/error"})
+	httpChaos, err := chaos.NewChaos("127.0.0.1:8666")
+	if err != nil {
+		return nil, fmt.Errorf("chaos middleware init error: %s", err)
+	}
 
 	router = mux.NewRouter()
 
@@ -63,32 +55,28 @@ func newService(bindAddr string, config *config) (*service, error) {
 		service.endpoints[i] = e
 		router.HandleFunc(e.route, e.handler).
 			Methods(e.method)
+		log.Debug("registered API endpoint %s %s", e.method, e.route)
 	}
 
 	if len(service.endpoints) == 0 {
-		log.Warning("no API endpoints configured, check your configuration")
+		log.Warning("no API endpoints registered, check your configuration")
 	}
 
 	router.HandleFunc("/", service.handler).
 		Methods("GET")
 
-	router.HandleFunc("/delay/{target}", httpDelay.HandleDelay).
-		Methods("GET", "PUT", "DELETE")
-
-	router.HandleFunc("/error/endpoint", httpError.HandleError).
-		Methods("GET", "PUT", "DELETE")
-
 	router.HandleFunc("/metrics", httpMetrics.HandleMetrics).
 		Methods("GET")
 
 	// /!\ Middleware chain order matters:
-	// - logging/metrics middleware have to be added first, since they measure the whole request process latency
-	// - error middleware has to be added last as it interrupts the request process latency, and instrumentation must
-	//   be performed before
-	handlers.Use(httpLogging)
-	handlers.Use(httpMetrics)
-	handlers.Use(httpDelay)
-	handlers.Use(httpError)
+	// - logging/metrics/tracing middleware must be added first, since they measure the whole request process latency
+	// - chaos middleware must be added last as it disrupts the request process flow, so instrumentation must
+	//   be happen before
+	handlers = negroni.New(
+		negroni.NewLogger(),
+		httpMetrics,
+		httpChaos,
+	)
 
 	handlers.UseHandler(router)
 

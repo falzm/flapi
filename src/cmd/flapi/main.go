@@ -11,6 +11,8 @@ import (
 	"runtime"
 	"syscall"
 
+	"github.com/falzm/chaos"
+
 	"github.com/facette/logger"
 )
 
@@ -25,11 +27,12 @@ var (
 	version   string
 	buildDate string
 
-	flagBindAddr   string
-	flagConfigPath string
-	flagHelp       bool
-	flagLogLevel   string
-	flagVersion    bool
+	flagBindAddr      string
+	flagChaosBindAddr string
+	flagConfigPath    string
+	flagHelp          bool
+	flagLogLevel      string
+	flagVersion       bool
 
 	log *logger.Logger
 )
@@ -39,7 +42,8 @@ func init() {
 
 	flag.BoolVar(&flagHelp, "help", false, "display this help and exit")
 	flag.BoolVar(&flagVersion, "version", false, "display version and exit")
-	flag.StringVar(&flagBindAddr, "bind-addr", defaultBindAddr, "network [address]:port to bind to")
+	flag.StringVar(&flagBindAddr, "bind-addr", defaultBindAddr, "HTTP server network [address]:port to bind to")
+	flag.StringVar(&flagChaosBindAddr, "chaos-bind-addr", chaos.DefaultBindAddr, "chaos management HTTP server network [address]:port to bind to")
 	flag.StringVar(&flagConfigPath, "config", defaultConfigPath, "path to configuration file")
 	flag.StringVar(&flagLogLevel, "log-level", defaultLogLevel, "logging level")
 	flag.Parse()
@@ -84,6 +88,7 @@ func main() {
 	log.Notice("starting")
 
 	log.Debug("listening on %s", flagBindAddr)
+	log.Debug("chaos management listening on %s", flagChaosBindAddr)
 
 	if err := service.run(); err != nil {
 		if err != http.ErrServerClosed {

@@ -33,6 +33,12 @@
 			"branch": "master"
 		},
 		{
+			"importpath": "github.com/falzm/chaos",
+			"repository": "https://github.com/falzm/chaos",
+			"revision": "d163ee880d92e2f2e890eed666e1f7aa3d5a8d1e",
+			"branch": "HEAD"
+		},
+		{
 			"importpath": "github.com/golang/protobuf/proto",
 			"repository": "https://github.com/golang/protobuf",
 			"revision": "925541529c1fa6821df4e44ce2723319eb2be768",
