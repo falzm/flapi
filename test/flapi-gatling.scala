@@ -6,11 +6,11 @@ import scala.concurrent.duration._
 
 class test extends Simulation {
   val httpConf = http
-    .baseURL("http://localhost:8000")
+    .baseUrl("http://localhost:8000")
 
   val scn = scenario("FLAPI.test")
-    .exec(http("GET:/api/a")
-      .get("/api/a"))
+    .exec(http("POST:/api/a")
+      .post("/api/a"))
 
   // val scn = scenario("FLAPI.test")
   //   .exec(http("POST:/api/a")
