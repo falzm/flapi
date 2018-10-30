@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flapi-conf-a
+data:
+  flapi.yaml: |
+    ---
+    metrics:
+      latency_histogram_buckets:
+      - 0.01
+      - 0.05
+      - 0.1
+      - 0.5
+      - 1.0
+      - 5.0
+      - 10.0
+    api_endpoints:
+    - method: POST
+      route: /a
+      response_status: 201
+    - method: GET
+      route: /a
+      chain:
+      - method: GET
+        url: http://flapi-b:8000/api/b
+      - method: GET
+        url: http://flapi-c:8000/api/c
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flapi-a
+  labels:
+    app: flapi-a
+spec:
+  selector:
+    app: flapi-a
+  ports:
+  - protocol: TCP
+    port: 8000
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: flapi-a
+#  labels:
+#    app: flapi-a
+#spec:
+#  selector:
+#    app: flapi-a
+#  ports:
+#  - protocol: TCP
+#    port: 80
+#    targetPort: 8000
+#  type: LoadBalancer
+---
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: flapi-a
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: flapi-a
+    spec:
+      containers:
+      - name: flapi
+        image: falzm/flapi:0.1.0dev
+        command: ['flapi', '-log-level', 'debug', '-config', '/etc/flapi/flapi.yaml']
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: flapi-conf-a
+          mountPath: /etc/flapi
+          readOnly: true
+      volumes:
+      - name: flapi-conf-a
+        configMap:
+          name: flapi-conf-a
+          items:
+          - key: flapi.yaml
+            path: flapi.yaml

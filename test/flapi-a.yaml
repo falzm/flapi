@@ -1,0 +1,23 @@
+---
+
+metrics:
+  latency_histogram_buckets:
+  - 0.01
+  - 0.05
+  - 0.1
+  - 0.5
+  - 1.0
+  - 5.0
+  - 10.0
+
+api_endpoints:
+- method: POST
+  route: /a
+  response_status: 201
+- method: GET
+  route: /a
+  chain:
+  - method: GET
+    url: http://localhost:8001/api/b
+  - method: GET
+    url: http://localhost:8002/api/c

@@ -1,0 +1,17 @@
+---
+
+metrics:
+  latency_histogram_buckets:
+  - 0.01
+  - 0.05
+  - 0.1
+  - 0.5
+  - 1.0
+  - 5.0
+  - 10.0
+
+api_endpoints:
+- method: GET
+  route: /c
+  response_status: 200
+  response_body: C
