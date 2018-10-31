@@ -1,4 +1,4 @@
-FROM golang:1.9 AS builder
+FROM golang:1 AS builder
 ARG VERSION
 ARG BUILD_DATE
 COPY . /flapi
@@ -11,7 +11,10 @@ RUN GOPATH=/flapi:/flapi/vendor GOOS=linux CGO_ENABLED=0 go build \
 		" \
         ./src/cmd/flapi
 
+#--------------------------------------------------------------------
+
 FROM scratch
 COPY --from=builder /flapi/flapi /usr/bin/flapi
-
+COPY flapi.yaml /etc/
 ENTRYPOINT ["/usr/bin/flapi"]  
+CMD ["-config", "/etc/flapi.yaml"]
