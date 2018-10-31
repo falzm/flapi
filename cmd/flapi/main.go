@@ -24,6 +24,7 @@ const (
 )
 
 var (
+	hostname  string
 	version   string
 	buildDate string
 
@@ -50,6 +51,10 @@ func init() {
 
 	if log, err = logger.NewLogger(logger.FileConfig{Level: flagLogLevel}); err != nil {
 		dieOnError("unable to initialize logger: %s", err)
+	}
+
+	if hostname, err = os.Hostname(); err != nil {
+		dieOnError("unable to get system hostname: %s", err)
 	}
 }
 

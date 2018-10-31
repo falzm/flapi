@@ -93,6 +93,7 @@ func newEndpoint(method, route string, responseStatus int, responseBody string,
 
 func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
 	rw.Header().Set("X-Flapi-Version", version)
+	rw.Header().Set("X-Flapi-Host", hostname)
 
 	if e.targets == nil {
 		rw.WriteHeader(e.responseStatus)
