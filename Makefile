@@ -5,7 +5,7 @@ DOCKER_TAG ?= flapi:$(VERSION)
 all: flapi
 
 flapi:
-	@go build -mod vendor -ldflags "\
+	go build -mod vendor -a -installsuffix nocgo -ldflags "\
 		-X main.version=$(VERSION) \
 		-X main.buildDate=$(BUILD_DATE) \
 		" \

@@ -3,13 +3,7 @@ ARG VERSION
 ARG BUILD_DATE
 COPY . /flapi
 WORKDIR /flapi
-RUN GOPATH=/flapi:/flapi/vendor GOOS=linux CGO_ENABLED=0 go build \
-        -a -installsuffix nocgo \
-        -ldflags "\
-		        -X main.version=${VERSION} \
-		        -X main.buildDate=${BUILD_DATE} \
-		" \
-        ./src/cmd/flapi
+RUN make GOOS=linux CGO_ENABLED=0 flapi
 
 #--------------------------------------------------------------------
 
