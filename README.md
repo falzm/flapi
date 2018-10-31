@@ -8,10 +8,9 @@ FLAPI is a proof-of-concept web application back-end exposing a configurable RES
 
 Build requirements:
 
-* [Go language](https://golang.org/) compiler >= 1.9
-* [gb](https://getgb.io/) utility
+* [Go language](https://golang.org/) compiler >= 1.11
 
-To compile FLAPI, execute `make`. The resulting binary should appear in the `bin` directory.
+To compile FLAPI, execute `make`. The resulting binary should appear in the current directory.
 
 ## Configuration
 

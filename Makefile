@@ -5,12 +5,11 @@ DOCKER_TAG ?= flapi:$(VERSION)
 all: flapi
 
 flapi:
-	@GOPATH="$(PWD):$(PWD)/vendor" \
-		go build -ldflags "\
-			-X main.version=$(VERSION) \
-			-X main.buildDate=$(BUILD_DATE) \
-			" \
-			./src/cmd/flapi
+	@go build -mod vendor -ldflags "\
+		-X main.version=$(VERSION) \
+		-X main.buildDate=$(BUILD_DATE) \
+		" \
+		./cmd/flapi
 
 docker:
 	@docker build \
@@ -29,4 +28,4 @@ chaos:
 	@curl 'localhost:8666/?method=GET&path=/api/b'
 
 clean:
-	@rm -rf flapi bin/ pkg/
+	@rm -rf flapi
