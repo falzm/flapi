@@ -59,6 +59,10 @@ api_endpoints:
     url: http://localhost:8002/api/z
 ```
 
+### Environment
+
+At runtime, FLAPI looks for `FLAPI_`-prefixed environment variables prefixed: if there are any to be found, the process will add them as `X-Flapi-`-prefixed HTTP response headers (e.g. `FLAPI_FOO="bar"` → `X-Flapi-Foo: bar`).
+
 ## API documentation
 
 Note: you can inject both delay and error to an endpoint.

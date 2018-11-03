@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/facette/httputil"
@@ -39,11 +40,12 @@ func (e *endpointTarget) request(ctx context.Context) (*http.Response, error) {
 }
 
 type endpoint struct {
-	method         string
-	route          string
-	responseStatus int
-	responseBody   string
-	targets        []endpointTarget
+	method          string
+	route           string
+	responseStatus  int
+	responseHeaders map[string]string
+	responseBody    string
+	targets         []endpointTarget
 }
 
 func newEndpoint(method, route string, responseStatus int, responseBody string,
@@ -67,6 +69,17 @@ func newEndpoint(method, route string, responseStatus int, responseBody string,
 		return nil, fmt.Errorf("invalid response status code")
 	}
 	e.responseStatus = responseStatus
+
+	e.responseHeaders = map[string]string{
+		"Version": version,
+		"Host":    hostname,
+	}
+	for _, env := range os.Environ() {
+		sub := strings.Split(env, "=")
+		if strings.HasPrefix(sub[0], "FLAPI_") {
+			e.responseHeaders[strings.TrimPrefix(sub[0], "FLAPI_")] = sub[1]
+		}
+	}
 
 	e.responseBody = responseBody
 
@@ -92,8 +105,9 @@ func newEndpoint(method, route string, responseStatus int, responseBody string,
 }
 
 func (e *endpoint) handler(rw http.ResponseWriter, r *http.Request) {
-	rw.Header().Set("X-Flapi-Version", version)
-	rw.Header().Set("X-Flapi-Host", hostname)
+	for k, v := range e.responseHeaders {
+		rw.Header().Set("X-Flapi-"+k, v)
+	}
 
 	if e.targets == nil {
 		rw.WriteHeader(e.responseStatus)
